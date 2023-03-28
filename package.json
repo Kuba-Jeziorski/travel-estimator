@@ -1,0 +1,24 @@
+{
+  "name": "travel-estimator",
+  "version": "1.0.0",
+  "description": "Script with use of exteranal API to count cost of traveling by car from one place to another.",
+  "main": "scripts.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "node-sass -o css scss/main.scss -w"
+    
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kuba-Jeziorski/travel-estimator.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kuba-Jeziorski/travel-estimator/issues"
+  },
+  "homepage": "https://github.com/Kuba-Jeziorski/travel-estimator#readme",
+  "dependencies": {
+    "node-sass": "^8.0.0"
+  }
+}
