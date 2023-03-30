@@ -3,11 +3,17 @@
 }
 
 html {
-  @include fullSize;
+  @include fullSized;
+  @include default;
 }
 
 body {
-  @include fullSize;
+  @include fullSized;
+  @include default;
   font-size: 16px;
   line-height: 1.5;
+}
+
+#map {
+  @include fullSize;
 }
