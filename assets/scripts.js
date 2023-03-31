@@ -1,24 +1,10 @@
 'strict mode'
 
-console.log(`test`);
-
-function calcDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth's radius in kilometers
-    const dLat = (lat2 - lat1) * Math.PI / 180; // convert to radians
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // distance in kilometers
-    return console.log(`Distance between this two points is about: ${Number.parseFloat(distance).toFixed(2)} km`);
-}
-
+// const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
 
 function initMap() {
 
-    // IMPORTANT variables
+    // IMPORTANT letiables
     let markers = [];
     let markersCoords = [];
     let markersDouble = [];
@@ -35,21 +21,7 @@ function initMap() {
 
     let infoWindow = new google.maps.InfoWindow({});
 
-    let flightPath;
-
     //IMPORTANT functions
-    const drawLine = function(pathCoords) {
-        flightPath = new google.maps.Polyline({
-            path: pathCoords,
-            geodesic: true,
-            strokeColor: "#FF0000",
-            strokeOpacity: 1.0,
-            strokeWeight: 2,
-            });
-
-            flightPath.setMap(map);
-            return flightPath;
-    }
 
     // adding new marker
     function addMarker(position) {
@@ -79,10 +51,32 @@ function initMap() {
         markers = [];
     }
 
-    // Delete polyline
-    function removeLine() {
-        flightPath.setMap(null);
-      }
+    // route
+    const directionsService = new google.maps.DirectionsService();
+    const directionsRenderer = new google.maps.DirectionsRenderer({
+      map: map,
+    });
+
+    // geolocation
+    const geocoder = new google.maps.Geocoder();
+    const geo = function(latCoords, lngCoords) {
+        geocoder.geocode({ 'latLng': {lat: latCoords, lng: lngCoords} }, function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+              if (results[0]) {
+                let address_components = results[0].address_components;
+                for (let i = 0; i < address_components.length; i++) {
+                  let types = address_components[i].types;
+                  if (types.indexOf('country') != -1) {
+                    console.log(`Country: ${address_components[i].long_name}`);
+                  }
+                }
+              } else {
+                alert('No results found');
+              }
+            } else {
+              alert('Geocoder failed due to: ' + status);
+            }});
+    }
 
     //IMPORTANT listener
     map.addListener("click", (event) => {
@@ -90,8 +84,6 @@ function initMap() {
         if (markers.length === 2) {
             hideMarkers();
             deleteMarkers();
-            removeLine();
-            flightPath = null;
         }
 
         if (markersCoords.length === 4) markersCoords.length = 0;
@@ -104,9 +96,31 @@ function initMap() {
         markersCoords.push(markerObject.lng)
         markersDouble.push({lat: markerObject.lat, lng: markerObject.lng})
 
+        
+
         if (markers.length === 2) {
-            calcDistance(...markersCoords);
-            drawLine(markersDouble);
+            // console.log(markersCoords);
+
+            const request = {
+                // first marker
+                origin: `${markersCoords[0]},${markersCoords[1]}`,
+                // second marker
+                destination: `${markersCoords[2]},${markersCoords[3]}`,
+                travelMode: "DRIVING",
+              };
+              
+            directionsService.route(request, function(result, status) {
+                if (status == "OK") {
+                  // Display the driving directions on the map
+                  directionsRenderer.setDirections(result);
+                  const dist = result.routes[0].legs[0].distance.text;
+                  console.log(`Distance is: ${dist}`);
+                  // marker - country
+                  geo(markersCoords[2], markersCoords[3])
+                  geo(markersCoords[0], markersCoords[1])
+                }
+              });
         }
     });
 }
+
