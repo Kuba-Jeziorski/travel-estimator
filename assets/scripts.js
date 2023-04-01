@@ -4,10 +4,14 @@
 
 function initMap() {
 
-    // IMPORTANT letiables
+    // IMPORTANT variables
     let markers = [];
     let markersCoords = [];
-    let markersDouble = [];
+    let allPoints = [];
+
+    const retryDelay = 1000;
+    const maxRetryCount = 5;
+    let retryCount = 0;
 
     const myLatlng = {lat: 47.751569, lng:1.675063};
     const myZoom = 5;
@@ -18,8 +22,6 @@ function initMap() {
     }
 
     const map = new google.maps.Map(document.querySelector('#map'), options);
-
-    let infoWindow = new google.maps.InfoWindow({});
 
     //IMPORTANT functions
 
@@ -51,31 +53,51 @@ function initMap() {
         markers = [];
     }
 
-    // route
+    // directions api
     const directionsService = new google.maps.DirectionsService();
     const directionsRenderer = new google.maps.DirectionsRenderer({
       map: map,
     });
 
-    // geolocation
+    // coords -> country
     const geocoder = new google.maps.Geocoder();
-    const geo = function(latCoords, lngCoords) {
-        geocoder.geocode({ 'latLng': {lat: latCoords, lng: lngCoords} }, function(results, status) {
-            if (status == google.maps.GeocoderStatus.OK) {
-              if (results[0]) {
-                let address_components = results[0].address_components;
-                for (let i = 0; i < address_components.length; i++) {
-                  let types = address_components[i].types;
-                  if (types.indexOf('country') != -1) {
-                    console.log(`Country: ${address_components[i].long_name}`);
-                  }
-                }
+
+    function geocodeAddress(address, geocoder) {
+      return new Promise((resolve, reject) => {
+        geocoder.geocode({ 'latLng': address }, (results, status) => {
+          if (status === 'OK') {
+            resolve(results[0]);
+          } else if (status === 'OVER_QUERY_LIMIT') {
+            setTimeout(() => {
+              retryCount++;
+              if (retryCount <= maxRetryCount) {
+                geocodeAddress(address, geocoder).then(resolve).catch(reject);
               } else {
-                alert('No results found');
+                reject(new Error(`Geocoding failed after ${maxRetryCount} attempts: ${address}`));
               }
-            } else {
-              alert('Geocoder failed due to: ' + status);
-            }});
+            }, retryDelay);
+          } else {
+            reject(new Error(`Geocoding failed: ${address} (${status})`));
+          }
+        });
+      });
+    }
+
+    async function geocodeAddresses(addresses, geocoder) {
+      let results = [];
+      let newResults = [];
+      for (let i = 0; i < addresses.length; i++) {
+        retryCount = 0; // Reset retry count for geocoding request
+        try {
+          const result = await geocodeAddress(addresses[i], geocoder);
+          results.push(result);
+          newResults = results.map(e => e.formatted_address).map(e => e.split(' ').pop())
+
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+      console.log(newResults);
     }
 
     //IMPORTANT listener
@@ -94,30 +116,36 @@ function initMap() {
         addMarker(event.latLng);
         markersCoords.push(markerObject.lat)
         markersCoords.push(markerObject.lng)
-        markersDouble.push({lat: markerObject.lat, lng: markerObject.lng})
-
-        
 
         if (markers.length === 2) {
-            // console.log(markersCoords);
-
             const request = {
-                // first marker
                 origin: `${markersCoords[0]},${markersCoords[1]}`,
-                // second marker
                 destination: `${markersCoords[2]},${markersCoords[3]}`,
                 travelMode: "DRIVING",
               };
               
             directionsService.route(request, function(result, status) {
                 if (status == "OK") {
+
                   // Display the driving directions on the map
                   directionsRenderer.setDirections(result);
                   const dist = result.routes[0].legs[0].distance.text;
                   console.log(`Distance is: ${dist}`);
-                  // marker - country
-                  geo(markersCoords[2], markersCoords[3])
-                  geo(markersCoords[0], markersCoords[1])
+
+                  // points between two markers
+                  let polyline = result.routes[0].overview_polyline;
+                  let path = google.maps.geometry.encoding.decodePath(polyline);
+                  for (let i = 0; i < path.length; i+=10) {
+                    let point = path[i];
+                    let coordsPoint = JSON.parse(JSON.stringify(point));
+                    allPoints.push(coordsPoint);
+                  }
+
+                  // all coords
+                  console.log(allPoints);
+
+                  // points between two markers to countries
+                  geocodeAddresses(allPoints, geocoder);
                 }
               });
         }
