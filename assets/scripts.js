@@ -135,7 +135,8 @@ function initMap() {
                   // points between two markers
                   let polyline = result.routes[0].overview_polyline;
                   let path = google.maps.geometry.encoding.decodePath(polyline);
-                  for (let i = 0; i < path.length; i+=10) {
+                  // i+=20, time about: 3s
+                  for (let i = 0; i < path.length; i+=20) {
                     let point = path[i];
                     let coordsPoint = JSON.parse(JSON.stringify(point));
                     allPoints.push(coordsPoint);
