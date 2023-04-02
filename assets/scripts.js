@@ -1,6 +1,6 @@
 'strict mode'
 
-// const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
+const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
 
 function initMap() {
 
@@ -83,7 +83,8 @@ function initMap() {
       });
     }
 
-    async function geocodeAddresses(addresses, geocoder) {
+    async function geocodeAddresses(addresses, geocoder, distance) {
+      const start = Date.now();
       let results = [];
       let newResults = [];
       for (let i = 0; i < addresses.length; i++) {
@@ -92,12 +93,31 @@ function initMap() {
           const result = await geocodeAddress(addresses[i], geocoder);
           results.push(result);
           newResults = results.map(e => e.formatted_address).map(e => e.split(' ').pop())
-
         } catch (error) {
           console.error(error.message);
         }
       }
+      console.log(results);
+
       console.log(newResults);
+
+      const uniquePlacesArray = [...new Set(newResults)];
+
+      const countryObj = uniquePlacesArray.reduce((accumulator, value) => {
+        return {...accumulator, [value]: ''};
+      }, {});
+
+      const numericDistance = parseInt(distance.replace(/\D/g, ''));;
+
+      for (let key in countryObj) {
+          let keyLength = (newResults.filter(e => e === key)).length;
+          countryObj[key] = (keyLength/(newResults.length))*numericDistance;
+      }
+      console.log(`The distance between two markers is: ${distance}`);
+      console.log(countryObj);
+
+      const end = Date.now();
+console.log(`Execution time: ${(end - start)/1000} s`);
     }
 
     //IMPORTANT listener
@@ -130,12 +150,14 @@ function initMap() {
                   // Display the driving directions on the map
                   directionsRenderer.setDirections(result);
                   const dist = result.routes[0].legs[0].distance.text;
-                  console.log(`Distance is: ${dist}`);
+                  // console.log(`Distance is: ${dist}`);
 
                   // points between two markers
                   let polyline = result.routes[0].overview_polyline;
                   let path = google.maps.geometry.encoding.decodePath(polyline);
-                  // i+=20, time about: 3s
+                  // i+=20, time about: 10.075, 17.464, 10.114, 13.164, 11.177, avg: 12,4s
+                  // i+=10, time about: 32.235, 33.418, 39.782, 52.36, 32.154, avg: 38s
+                  // i+=5, time about: 70.673, 83.225, 70.516, 132.312, 70.865, avg: 85.5s
                   for (let i = 0; i < path.length; i+=20) {
                     let point = path[i];
                     let coordsPoint = JSON.parse(JSON.stringify(point));
@@ -145,11 +167,26 @@ function initMap() {
                   // all coords
                   console.log(allPoints);
 
-                  // points between two markers to countries
-                  geocodeAddresses(allPoints, geocoder);
+                  // points between two markers to countries + distances in each country
+                  geocodeAddresses(allPoints, geocoder, dist);
                 }
               });
         }
     });
+
+    const countriesInformation = function(country) {
+      console.log(country);
+      fetch(`https://restcountries.com/v3.1/name/${country}`)
+      .then(response => response.json())
+      .then(data => {
+        const countryInfo = data[0];
+        // console.log(countryInfo);
+        console.log(countryInfo.currencies);
+      });
+    }
+
+    // countriesInformation('poland')
+    // countriesInformation('france')
+    // countriesInformation('germany')
 }
 
