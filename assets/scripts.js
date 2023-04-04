@@ -2,6 +2,9 @@
 
 const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
 
+// litres for 100 km;
+const fuelConsumption = 5;
+
 function initMap() {
   // IMPORTANT variables
   let markers = [];
@@ -102,9 +105,6 @@ function initMap() {
         console.error(error.message);
       }
     }
-    // console.log(results);
-
-    // console.log(newResults);
 
     const uniquePlacesArray = [...new Set(newResults)];
 
@@ -112,47 +112,38 @@ function initMap() {
       return { ...accumulator, [value]: "" };
     }, {});
 
-    // console.log(countryObj);
-
     const numericDistance = parseInt(distance.replace(/\D/g, ""));
 
+    // adding distance (key) and its value (value) to every country in object
     for (let key in countryObj) {
       let keyLength = newResults.filter((e) => e === key).length;
       const countryDescription = {
         distance: (keyLength / newResults.length) * numericDistance,
-        // currency: "",
       };
       countryObj[key] = countryDescription;
     }
-    console.log(`The distance between two markers is: ${distance}`);
-    console.log(countryObj);
-    // console.log(countryObj.Portugal);
+    console.log(`The distance between two markers is: ${numericDistance} km`);
+    console.log(
+      `If my car consumes ${fuelConsumption}/100 km, total amount of consumed fuel is ${
+        (numericDistance / 100) * fuelConsumption
+      } l`
+    );
 
-    // console.log(Object.keys(countryObj)[0]);
-    // console.log(Object.keys(countryObj).length);
-
+    // function for adding currency (key) and type of currency (value) to every country in object
     const countriesInformation = function (country) {
       fetch(`https://restcountries.com/v3.1/name/${country}`)
         .then((response) => response.json())
         .then((data) => {
           const countryInfo = data[0];
-          // ta linia wypisuje walutę w danym kraju
-          console.log(Object.keys(countryInfo.currencies)[0]);
-          return Object.keys(countryInfo.currencies)[0];
+          countryObj[country].currency = Object.keys(countryInfo.currencies)[0];
         });
     };
 
-    const newCountry = countriesInformation("Poland");
-    console.log(newCountry);
-
+    // adding currency value to countryObj (key: currency)
     for (let prop in countryObj) {
       countriesInformation(prop);
-      // countryObj[prop].currency = countriesInformation(prop);
-      countryObj[prop].currency = 5;
     }
     console.log(countryObj);
-
-    // console.log(countryObj.Portugal);
 
     const end = Date.now();
     console.log(`Execution time: ${(end - start) / 1000} s`);
@@ -199,29 +190,10 @@ function initMap() {
             allPoints.push(coordsPoint);
           }
 
-          // all coords
-          // console.log(allPoints);
-
           // points between two markers to countries + distances in each country
           geocodeAddresses(allPoints, geocoder, dist);
         }
       });
     }
   });
-
-  // const countriesInformation = function (country) {
-  //   fetch(`https://restcountries.com/v3.1/name/${country}`)
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       const countryInfo = data[0];
-  //       // console.log(countryInfo);
-  //       console.log(country);
-  //       // console.log(countryInfo.currencies);
-  //       console.log(Object.keys(countryInfo.currencies)[0]);
-  //     });
-  // };
-
-  // countriesInformation("poland");
-  // // countriesInformation('france')
-  // // countriesInformation('germany')
 }
