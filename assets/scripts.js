@@ -102,9 +102,9 @@ function initMap() {
         console.error(error.message);
       }
     }
-    console.log(results);
+    // console.log(results);
 
-    console.log(newResults);
+    // console.log(newResults);
 
     const uniquePlacesArray = [...new Set(newResults)];
 
@@ -112,14 +112,47 @@ function initMap() {
       return { ...accumulator, [value]: "" };
     }, {});
 
+    // console.log(countryObj);
+
     const numericDistance = parseInt(distance.replace(/\D/g, ""));
 
     for (let key in countryObj) {
       let keyLength = newResults.filter((e) => e === key).length;
-      countryObj[key] = (keyLength / newResults.length) * numericDistance;
+      const countryDescription = {
+        distance: (keyLength / newResults.length) * numericDistance,
+        // currency: "",
+      };
+      countryObj[key] = countryDescription;
     }
     console.log(`The distance between two markers is: ${distance}`);
     console.log(countryObj);
+    // console.log(countryObj.Portugal);
+
+    // console.log(Object.keys(countryObj)[0]);
+    // console.log(Object.keys(countryObj).length);
+
+    const countriesInformation = function (country) {
+      fetch(`https://restcountries.com/v3.1/name/${country}`)
+        .then((response) => response.json())
+        .then((data) => {
+          const countryInfo = data[0];
+          // ta linia wypisuje walutę w danym kraju
+          console.log(Object.keys(countryInfo.currencies)[0]);
+          return Object.keys(countryInfo.currencies)[0];
+        });
+    };
+
+    const newCountry = countriesInformation("Poland");
+    console.log(newCountry);
+
+    for (let prop in countryObj) {
+      countriesInformation(prop);
+      // countryObj[prop].currency = countriesInformation(prop);
+      countryObj[prop].currency = 5;
+    }
+    console.log(countryObj);
+
+    // console.log(countryObj.Portugal);
 
     const end = Date.now();
     console.log(`Execution time: ${(end - start) / 1000} s`);
@@ -153,7 +186,6 @@ function initMap() {
           // Display the driving directions on the map
           directionsRenderer.setDirections(result);
           const dist = result.routes[0].legs[0].distance.text;
-          // console.log(`Distance is: ${dist}`);
 
           // points between two markers
           let polyline = result.routes[0].overview_polyline;
@@ -168,7 +200,7 @@ function initMap() {
           }
 
           // all coords
-          console.log(allPoints);
+          // console.log(allPoints);
 
           // points between two markers to countries + distances in each country
           geocodeAddresses(allPoints, geocoder, dist);
@@ -177,19 +209,19 @@ function initMap() {
     }
   });
 
-  const countriesInformation = function (country) {
-    console.log(country);
-    fetch(`https://restcountries.com/v3.1/name/${country}`)
-      .then((response) => response.json())
-      .then((data) => {
-        const countryInfo = data[0];
-        // console.log(countryInfo);
-        console.log(countryInfo.currencies);
-        console.log(Object.keys(countryInfo.currencies)[0]);
-      });
-  };
+  // const countriesInformation = function (country) {
+  //   fetch(`https://restcountries.com/v3.1/name/${country}`)
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       const countryInfo = data[0];
+  //       // console.log(countryInfo);
+  //       console.log(country);
+  //       // console.log(countryInfo.currencies);
+  //       console.log(Object.keys(countryInfo.currencies)[0]);
+  //     });
+  // };
 
-  countriesInformation("poland");
-  // countriesInformation('france')
-  // countriesInformation('germany')
+  // countriesInformation("poland");
+  // // countriesInformation('france')
+  // // countriesInformation('germany')
 }
