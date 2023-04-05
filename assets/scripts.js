@@ -197,3 +197,13 @@ function initMap() {
     }
   });
 }
+
+const nbp = function (table) {
+  fetch(`http://api.nbp.pl/api/exchangerates/tables/${table}/`)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+    });
+};
+
+nbp("A");
