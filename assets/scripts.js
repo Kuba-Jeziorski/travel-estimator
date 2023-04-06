@@ -5,6 +5,9 @@ const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
 // litres for 100 km;
 const fuelConsumption = 5;
 
+// average cost (in euro) for one litre of diesel fuel in Europe (3.04.2023)
+const diesel = 1.4256;
+
 function initMap() {
   // IMPORTANT variables
   let markers = [];
@@ -107,6 +110,7 @@ function initMap() {
     }
 
     const uniquePlacesArray = [...new Set(newResults)];
+    console.log(newResults);
 
     const countryObj = uniquePlacesArray.reduce((accumulator, value) => {
       return { ...accumulator, [value]: "" };
@@ -116,9 +120,16 @@ function initMap() {
 
     // adding distance (key) and its value (value) to every country in object
     for (let key in countryObj) {
+      // how many copies of particular country occured
       let keyLength = newResults.filter((e) => e === key).length;
+      console.log(keyLength);
       const countryDescription = {
         distance: (keyLength / newResults.length) * numericDistance,
+        volume: +Number.parseFloat(
+          (((keyLength / newResults.length) * numericDistance) / 100) *
+            fuelConsumption
+        ).toFixed(2),
+        // ratio: 1,
       };
       countryObj[key] = countryDescription;
     }
@@ -143,6 +154,48 @@ function initMap() {
     for (let prop in countryObj) {
       countriesInformation(prop);
     }
+    console.log(countryObj);
+
+    // adding ratio (local currency / PLN) to each country object
+    const nbp = function (table) {
+      fetch(`http://api.nbp.pl/api/exchangerates/tables/${table}/`)
+        .then((response) => response.json())
+        .then((data) => {
+          const nbpRatio = data[0].rates;
+
+          // Polish ratio = 1;
+          const countriesArray = Object.keys(countryObj);
+          if (countriesArray.includes("Poland")) {
+            for (let country in countryObj) {
+              if (countryObj[country].currency === "PLN")
+                countryObj[country].ratio = 1;
+            }
+          }
+
+          for (let abc in countryObj) {
+            const currencyTarget = countryObj[abc].currency;
+            let currencyRatio;
+            // console.log(currencyDistance);
+
+            for (let singleNbpRatio in nbpRatio) {
+              const bid = nbpRatio[singleNbpRatio].bid;
+              const mid = nbpRatio[singleNbpRatio].mid;
+
+              if (nbpRatio[singleNbpRatio].code === currencyTarget) {
+                typeof mid === "undefined"
+                  ? (currencyRatio = +Number.parseFloat(bid).toFixed(2))
+                  : (currencyRatio = +Number.parseFloat(mid).toFixed(2));
+
+                countryObj[abc].ratio = currencyRatio;
+              }
+            }
+          }
+        });
+    };
+
+    nbp("A");
+    nbp("B");
+    nbp("C");
     console.log(countryObj);
 
     const end = Date.now();
@@ -198,12 +251,31 @@ function initMap() {
   });
 }
 
-const nbp = function (table) {
-  fetch(`http://api.nbp.pl/api/exchangerates/tables/${table}/`)
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-    });
-};
+// async function getFuelCost(country) {
+//   const response = await fetch(
+//     `https://fuel-price.p.rapidapi.com/api/gasoline_price/${country}`
+//   );
+//   const data = await response.json();
+//   return data.gasoline_price;
+// }
 
-nbp("A");
+// const country = "France";
+// getFuelCost(country)
+//   .then((cost) =>
+//     console.log(`The average fuel cost in ${country} is ${cost} USD per liter.`)
+//   )
+//   .catch((error) => console.error(error));
+
+// UfZPL0plJeQOL7WI3JZYdSjvWCk5twuD
+
+// const apiKey = "UfZPL0plJeQOL7WI3JZYdSjvWCk5twuD";
+// const country = "PL"; // ISO 3166-1 alpha-2 code for Poland
+// const fuelPriceId = "1:2622f89a-6300-11ec-8d12-a0423f39b5a2";
+
+// // fetch(`https://api.tomtom.com/fuel/1/fuelprices/${country}.json?key=${apiKey}`)
+// fetch(`https://api.tomtom.com/fuel/1/fuelprices/PL.json?key=${apiKey}`)
+//   .then((response) => response.json())
+//   .then((data) => {
+//     console.log(data);
+//   })
+//   .catch((error) => console.error(error));
