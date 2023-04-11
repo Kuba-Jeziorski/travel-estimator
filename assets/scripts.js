@@ -250,32 +250,3 @@ function initMap() {
     }
   });
 }
-
-// async function getFuelCost(country) {
-//   const response = await fetch(
-//     `https://fuel-price.p.rapidapi.com/api/gasoline_price/${country}`
-//   );
-//   const data = await response.json();
-//   return data.gasoline_price;
-// }
-
-// const country = "France";
-// getFuelCost(country)
-//   .then((cost) =>
-//     console.log(`The average fuel cost in ${country} is ${cost} USD per liter.`)
-//   )
-//   .catch((error) => console.error(error));
-
-// UfZPL0plJeQOL7WI3JZYdSjvWCk5twuD
-
-// const apiKey = "UfZPL0plJeQOL7WI3JZYdSjvWCk5twuD";
-// const country = "PL"; // ISO 3166-1 alpha-2 code for Poland
-// const fuelPriceId = "1:2622f89a-6300-11ec-8d12-a0423f39b5a2";
-
-// // fetch(`https://api.tomtom.com/fuel/1/fuelprices/${country}.json?key=${apiKey}`)
-// fetch(`https://api.tomtom.com/fuel/1/fuelprices/PL.json?key=${apiKey}`)
-//   .then((response) => response.json())
-//   .then((data) => {
-//     console.log(data);
-//   })
-//   .catch((error) => console.error(error));
