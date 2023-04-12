@@ -5,7 +5,7 @@ const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
 // litres for 100 km;
 const fuelConsumption = 5;
 
-// average cost (in euro) for one litre of diesel fuel in Europe (3.04.2023)
+// average cost (in euro!) for one litre of diesel fuel in Europe (3.04.2023)
 const diesel = 1.4256;
 
 function initMap() {
@@ -122,9 +122,10 @@ function initMap() {
     for (let key in countryObj) {
       // how many copies of particular country occured
       let keyLength = newResults.filter((e) => e === key).length;
-      console.log(keyLength);
       const countryDescription = {
-        distance: (keyLength / newResults.length) * numericDistance,
+        distance: +Number.parseFloat(
+          (keyLength / newResults.length) * numericDistance
+        ).toFixed(2),
         volume: +Number.parseFloat(
           (((keyLength / newResults.length) * numericDistance) / 100) *
             fuelConsumption
@@ -162,40 +163,77 @@ function initMap() {
         .then((response) => response.json())
         .then((data) => {
           const nbpRatio = data[0].rates;
+          let euroRatio;
 
-          // Polish ratio = 1;
-          const countriesArray = Object.keys(countryObj);
-          if (countriesArray.includes("Poland")) {
-            for (let country in countryObj) {
-              if (countryObj[country].currency === "PLN")
-                countryObj[country].ratio = 1;
+          for (let nbpSingleRatio in nbpRatio) {
+            const mid = nbpRatio[nbpSingleRatio].mid;
+            if (nbpRatio[nbpSingleRatio].code === "EUR") {
+              euroRatio = +Number.parseFloat(mid).toFixed(2);
             }
           }
 
-          for (let abc in countryObj) {
-            const currencyTarget = countryObj[abc].currency;
-            let currencyRatio;
-            // console.log(currencyDistance);
-
-            for (let singleNbpRatio in nbpRatio) {
-              const bid = nbpRatio[singleNbpRatio].bid;
-              const mid = nbpRatio[singleNbpRatio].mid;
-
-              if (nbpRatio[singleNbpRatio].code === currencyTarget) {
-                typeof mid === "undefined"
-                  ? (currencyRatio = +Number.parseFloat(bid).toFixed(2))
-                  : (currencyRatio = +Number.parseFloat(mid).toFixed(2));
-
-                countryObj[abc].ratio = currencyRatio;
-              }
-            }
+          // IMPORTANT - static fuel cost (in euro!); adding fixedRatio property and wholeCost
+          for (let singleCountry in countryObj) {
+            countryObj[singleCountry].fixedRatio = euroRatio;
+            countryObj[singleCountry].wholeCost = +Number.parseFloat(
+              countryObj[singleCountry].volume *
+                countryObj[singleCountry].fixedRatio *
+                diesel
+            ).toFixed(2);
           }
+
+          // IMPORTANT - in case of dynamic fuel API; Polish ratio = 1;
+          // const countriesArray = Object.keys(countryObj);
+          // if (countriesArray.includes("Poland")) {
+          //   for (let country in countryObj) {
+          //     if (countryObj[country].currency === "PLN")
+          //       countryObj[country].ratio = 1;
+          //     countryObj[country].cost = +Number.parseFloat(
+          //       countryObj[country].ratio * countryObj[country].volume * diesel
+          //     ).toFixed(2);
+          //   }
+          // }
+
+          // IMPORTANT - in case of dynamic fuel API; non-polish countries
+          // for (let abc in countryObj) {
+          //   const currencyTarget = countryObj[abc].currency;
+          //   let currencyRatio;
+          //   let cost;
+          // console.log(currencyDistance);
+
+          // for (let singleNbpRatio in nbpRatio) {
+          //   const bid = nbpRatio[singleNbpRatio].bid;
+          //   const mid = nbpRatio[singleNbpRatio].mid;
+
+          //   if (nbpRatio[singleNbpRatio].code === currencyTarget) {
+          //     typeof mid === "undefined"
+          //       ? (currencyRatio = +Number.parseFloat(bid).toFixed(2))
+          //       : (currencyRatio = +Number.parseFloat(mid).toFixed(2));
+
+          //     countryObj[abc].ratio = currencyRatio;
+          //     cost = +Number.parseFloat(
+          //       countryObj[abc].ratio * countryObj[abc].volume * diesel
+          //     ).toFixed(2);
+          //     countryObj[abc].cost = cost;
+          //   }
+          // }
+
+          // }
+          const summingUp = function () {
+            let costArray = [];
+            for (let singleCountryObj in countryObj) {
+              costArray.push(countryObj[singleCountryObj].wholeCost);
+            }
+            costArray = +Number.parseFloat(
+              costArray.reduce((acc, cur) => acc + cur)
+            ).toFixed(2);
+            console.log(`Whole trip costs ${costArray} PLN.`);
+          };
+          summingUp();
         });
     };
-
     nbp("A");
-    nbp("B");
-    nbp("C");
+
     console.log(countryObj);
 
     const end = Date.now();
@@ -237,7 +275,7 @@ function initMap() {
           // i+=20, time about: 10.075, 17.464, 10.114, 13.164, 11.177, avg: 12,4s
           // i+=10, time about: 32.235, 33.418, 39.782, 52.36, 32.154, avg: 38s
           // i+=5, time about: 70.673, 83.225, 70.516, 132.312, 70.865, avg: 85.5s
-          for (let i = 0; i < path.length; i += 20) {
+          for (let i = 0; i < path.length; i += 5) {
             let point = path[i];
             let coordsPoint = JSON.parse(JSON.stringify(point));
             allPoints.push(coordsPoint);
