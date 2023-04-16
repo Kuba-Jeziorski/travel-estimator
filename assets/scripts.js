@@ -5,8 +5,8 @@ const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
 // litres for 100 km;
 const fuelConsumption = 5;
 
-// average cost (in euro!) for one litre of diesel fuel in Europe (3.04.2023)
-const diesel = 1.4256;
+// average cost (in euro!) for one litre of diesel fuel in Europe (10.04.2023)
+const diesel = 1.529475;
 
 function initMap() {
   // IMPORTANT variables
