@@ -30,6 +30,7 @@ function initMap() {
 
   //IMPORTANT functions
   console.log(`test`);
+  console.log(`test2`);
 
   // adding new marker
   function addMarker(position) {
