@@ -29,6 +29,7 @@ function initMap() {
   const map = new google.maps.Map(document.querySelector("#map"), options);
 
   //IMPORTANT functions
+  console.log(`test`);
 
   // adding new marker
   function addMarker(position) {
