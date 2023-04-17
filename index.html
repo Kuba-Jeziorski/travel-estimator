@@ -16,5 +16,68 @@
   </head>
   <body>
     <div id="map" class="new"></div>
+
+    <!-- form -->
+    <form id="travel-form">
+      <div class="row">
+        <div class="col">
+          <div class="tabs">
+            <div class="tab">
+              <input type="radio" id="rd1" name="rd" />
+              <label class="tab-label" for="rd1">Information</label>
+              <div class="tab-content">
+                Basic information how to use this script.
+              </div>
+            </div>
+            <div class="tab">
+              <!-- required -->
+              <input type="radio" id="rd2" name="rd" />
+              <label class="tab-label" for="rd2">Origin and destination</label>
+              <div class="tab-content">Map, where user sets two markers.</div>
+            </div>
+            <div class="tab">
+              <!-- required -->
+              <input type="radio" id="rd3" name="rd" />
+              <label class="tab-label" for="rd3">Fuel consumption</label>
+              <div class="tab-content">
+                Input type number when user insert fuel consumption of his
+                vehicle.
+                <input
+                  style="position: relative; z-index: 1; opacity: 1"
+                  type="number"
+                  id="travel-consumption"
+                  name="consumption"
+                  min="0"
+                  max="100"
+                />
+              </div>
+            </div>
+            <div class="tab">
+              <!-- required -->
+              <input type="radio" id="rd4" name="rd" />
+              <label class="tab-label" for="rd4">Precision</label>
+              <div class="tab-content">
+                Range picker (3 options) for precision of result.
+                <div class="slidecontainer">
+                  <input
+                    style="position: relative; z-index: 1; opacity: 1"
+                    type="range"
+                    min="1"
+                    max="3"
+                    value="2"
+                    class="slider"
+                    id="travel-precision"
+                  />
+                  <p>Value: <span id="demo"></span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button type="submit" id="travel-submit">
+        <p>Submiting</p>
+      </button>
+    </form>
   </body>
 </html>

@@ -1,6 +1,6 @@
 "strict mode";
 
-const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
+// const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
 
 // litres for 100 km;
 const fuelConsumption = 5;
@@ -14,23 +14,22 @@ function initMap() {
   let markersCoords = [];
   let allPoints = [];
 
+  // preventing too long promises (coords -> countries)
   const retryDelay = 1000;
   const maxRetryCount = 5;
   let retryCount = 0;
 
-  const myLatlng = { lat: 47.751569, lng: 1.675063 };
-  const myZoom = 5;
+  const mapZoom = 5;
+  const mapCenter = { lat: 47.751569, lng: 1.675063 };
 
   const options = {
-    zoom: myZoom,
-    center: myLatlng,
+    zoom: mapZoom,
+    center: mapCenter,
   };
 
   const map = new google.maps.Map(document.querySelector("#map"), options);
 
   //IMPORTANT functions
-  console.log(`test`);
-  console.log(`test2`);
 
   // adding new marker
   function addMarker(position) {
@@ -66,7 +65,7 @@ function initMap() {
     map: map,
   });
 
-  // coords -> country
+  // coords -> country (single)
   const geocoder = new google.maps.Geocoder();
 
   function geocodeAddress(address, geocoder) {
@@ -94,6 +93,7 @@ function initMap() {
     });
   }
 
+  // coords -> country (all)
   async function geocodeAddresses(addresses, geocoder, distance) {
     const start = Date.now();
     let results = [];
@@ -120,7 +120,7 @@ function initMap() {
 
     const numericDistance = parseInt(distance.replace(/\D/g, ""));
 
-    // adding distance (key) and its value (value) to every country in object
+    // adding distance property and its value to every country in object
     for (let key in countryObj) {
       // how many copies of particular country occured
       let keyLength = newResults.filter((e) => e === key).length;
@@ -128,125 +128,35 @@ function initMap() {
         distance: +Number.parseFloat(
           (keyLength / newResults.length) * numericDistance
         ).toFixed(2),
-        volume: +Number.parseFloat(
-          (((keyLength / newResults.length) * numericDistance) / 100) *
-            fuelConsumption
-        ).toFixed(2),
-        // ratio: 1,
       };
       countryObj[key] = countryDescription;
     }
-    console.log(`The distance between two markers is: ${numericDistance} km`);
     console.log(
-      `If my car consumes ${fuelConsumption}/100 km, total amount of consumed fuel is ${
+      `[OUT] The distance between two markers is: ${numericDistance} km`
+    );
+    console.log(
+      `[OUT] If my car consumes ${fuelConsumption}/100 km, total amount of consumed fuel is ${
         (numericDistance / 100) * fuelConsumption
       } l`
     );
 
-    // function for adding currency (key) and type of currency (value) to every country in object
-    const countriesInformation = function (country) {
-      fetch(`https://restcountries.com/v3.1/name/${country}`)
-        .then((response) => response.json())
-        .then((data) => {
-          const countryInfo = data[0];
-          countryObj[country].currency = Object.keys(countryInfo.currencies)[0];
-        });
-    };
-
-    // adding currency value to countryObj (key: currency)
-    for (let prop in countryObj) {
-      countriesInformation(prop);
+    for (let [key, _] of Object.entries(countryObj)) {
+      console.log(
+        `[OUT] Distance driven in ${key} is ${countryObj[key].distance} km`
+      );
     }
-    console.log(countryObj);
-
-    // adding ratio (local currency / PLN) to each country object
-    const nbp = function (table) {
-      fetch(`http://api.nbp.pl/api/exchangerates/tables/${table}/`)
-        .then((response) => response.json())
-        .then((data) => {
-          const nbpRatio = data[0].rates;
-          let euroRatio;
-
-          for (let nbpSingleRatio in nbpRatio) {
-            const mid = nbpRatio[nbpSingleRatio].mid;
-            if (nbpRatio[nbpSingleRatio].code === "EUR") {
-              euroRatio = +Number.parseFloat(mid).toFixed(2);
-            }
-          }
-
-          // IMPORTANT - static fuel cost (in euro!); adding fixedRatio property and wholeCost
-          for (let singleCountry in countryObj) {
-            countryObj[singleCountry].fixedRatio = euroRatio;
-            countryObj[singleCountry].wholeCost = +Number.parseFloat(
-              countryObj[singleCountry].volume *
-                countryObj[singleCountry].fixedRatio *
-                diesel
-            ).toFixed(2);
-          }
-
-          // IMPORTANT - in case of dynamic fuel API; Polish ratio = 1;
-          // const countriesArray = Object.keys(countryObj);
-          // if (countriesArray.includes("Poland")) {
-          //   for (let country in countryObj) {
-          //     if (countryObj[country].currency === "PLN")
-          //       countryObj[country].ratio = 1;
-          //     countryObj[country].cost = +Number.parseFloat(
-          //       countryObj[country].ratio * countryObj[country].volume * diesel
-          //     ).toFixed(2);
-          //   }
-          // }
-
-          // IMPORTANT - in case of dynamic fuel API; non-polish countries
-          // for (let abc in countryObj) {
-          //   const currencyTarget = countryObj[abc].currency;
-          //   let currencyRatio;
-          //   let cost;
-          // console.log(currencyDistance);
-
-          // for (let singleNbpRatio in nbpRatio) {
-          //   const bid = nbpRatio[singleNbpRatio].bid;
-          //   const mid = nbpRatio[singleNbpRatio].mid;
-
-          //   if (nbpRatio[singleNbpRatio].code === currencyTarget) {
-          //     typeof mid === "undefined"
-          //       ? (currencyRatio = +Number.parseFloat(bid).toFixed(2))
-          //       : (currencyRatio = +Number.parseFloat(mid).toFixed(2));
-
-          //     countryObj[abc].ratio = currencyRatio;
-          //     cost = +Number.parseFloat(
-          //       countryObj[abc].ratio * countryObj[abc].volume * diesel
-          //     ).toFixed(2);
-          //     countryObj[abc].cost = cost;
-          //   }
-          // }
-
-          // }
-          const summingUp = function () {
-            let costArray = [];
-            for (let singleCountryObj in countryObj) {
-              costArray.push(countryObj[singleCountryObj].wholeCost);
-            }
-            costArray = +Number.parseFloat(
-              costArray.reduce((acc, cur) => acc + cur)
-            ).toFixed(2);
-            console.log(`Whole trip costs ${costArray} PLN.`);
-          };
-          summingUp();
-        });
-    };
-    nbp("A");
 
     console.log(countryObj);
-
     const end = Date.now();
-    console.log(`Execution time: ${(end - start) / 1000} s`);
+    console.log(`[OUT] Execution time: ${(end - start) / 1000} s`);
   }
 
   //IMPORTANT listener
   map.addListener("click", (event) => {
+    console.log(mapClicks);
     if (markers.length === 2) {
-      hideMarkers();
-      deleteMarkers();
+      window.alert(`enough of this clicking shiet`);
+      return;
     }
 
     if (markersCoords.length === 4) markersCoords.length = 0;
@@ -289,4 +199,31 @@ function initMap() {
       });
     }
   });
+
+  // IMPORTANT main function
+
+  const travelForm = document.querySelector("#travel-form");
+  const travelConsumption = document.querySelector("#travel-consumption");
+  const travelPrecision = document.querySelector("#travel-precision");
+
+  const mainFunction = function (e) {
+    if (e) e.preventDefault();
+    console.log(travelConsumption.value);
+    console.log(travelPrecision.value);
+    console.log(`form submited`);
+  };
+
+  travelForm.addEventListener("submit", function (e) {
+    mainFunction(e);
+  });
 }
+
+// range-picker
+let slider = document.getElementById("travel-precision");
+let output = document.getElementById("demo");
+output.innerHTML = slider.value; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+slider.oninput = function () {
+  output.innerHTML = this.value;
+};
