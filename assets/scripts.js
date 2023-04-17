@@ -152,8 +152,10 @@ function initMap() {
   }
 
   //IMPORTANT listener
+
+  const firstCoord = document.querySelector("#coord1");
+  const secondCoord = document.querySelector("#coord2");
   map.addListener("click", (event) => {
-    console.log(mapClicks);
     if (markers.length === 2) {
       window.alert(`enough of this clicking shiet`);
       return;
@@ -169,6 +171,8 @@ function initMap() {
     markersCoords.push(markerObject.lng);
 
     if (markers.length === 2) {
+      firstCoord.innerHTML = `first coord works - markers.length === 2`;
+      secondCoord.innerHTML = `second coord works - markers.length === 2`;
       const request = {
         origin: `${markersCoords[0]},${markersCoords[1]}`,
         destination: `${markersCoords[2]},${markersCoords[3]}`,
@@ -210,6 +214,10 @@ function initMap() {
     if (e) e.preventDefault();
     console.log(travelConsumption.value);
     console.log(travelPrecision.value);
+    if (firstCoord.textContent !== "" && secondCoord.textContent !== "")
+      console.log(`coords are fine`);
+    if (firstCoord.textContent === "" || secondCoord.textContent === "")
+      console.log(`coords are NOT fine`);
     console.log(`form submited`);
   };
 
