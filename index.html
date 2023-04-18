@@ -15,33 +15,34 @@
     <link rel="icon" type="image/x-icon" href="/assets/img/earth-icon.svg" />
   </head>
   <body>
-    <div id="map" class="new"></div>
-
-    <p id="coord1"></p>
-    <p id="coord2"></p>
+    <!-- <div id="map" class="new"></div> -->
 
     <!-- form -->
-    <form id="travel-form">
-      <div class="row">
-        <div class="col">
-          <div class="tabs">
-            <div class="tab">
-              <input type="radio" id="rd1" name="rd" />
-              <label class="tab-label" for="rd1">Information</label>
-              <div class="tab-content">
-                Basic information how to use this script.
-              </div>
+    <div class="row">
+      <div class="col">
+        <div class="tabs">
+          <div class="tab">
+            <input type="radio" id="rd1" name="rd" />
+            <label class="tab-label" for="rd1">Information</label>
+            <div class="tab-content">
+              Basic information how to use this script.
             </div>
-            <div class="tab">
-              <!-- required -->
-              <input type="radio" id="rd2" name="rd" />
-              <label class="tab-label" for="rd2">Origin and destination</label>
-              <div class="tab-content">Map, where user sets two markers.</div>
+          </div>
+          <div class="tab">
+            <!-- required -->
+            <input type="radio" id="rd2" name="rd" />
+            <label class="tab-label" for="rd2">Origin and destination</label>
+            <div class="tab-content">
+              <div id="map" class="new"></div>
+              <p id="coord1"></p>
+              <p id="coord2"></p>
             </div>
+          </div>
+          <form id="travel-form">
             <div class="tab">
               <!-- required -->
               <input type="radio" id="rd3" name="rd" />
-              <label class="tab-label" for="rd3">Fuel consumption</label>
+              <label class="tab-label" for="rd3">Fuel consumption [form]</label>
               <div class="tab-content">
                 Input type number when user insert fuel consumption of his
                 vehicle.
@@ -58,7 +59,7 @@
             <div class="tab">
               <!-- required -->
               <input type="radio" id="rd4" name="rd" />
-              <label class="tab-label" for="rd4">Precision</label>
+              <label class="tab-label" for="rd4">Precision [form]</label>
               <div class="tab-content">
                 Range picker (3 options) for precision of result.
                 <div class="slidecontainer">
@@ -75,12 +76,12 @@
                 </div>
               </div>
             </div>
-          </div>
+            <button type="submit" id="travel-submit">
+              <p>Submiting</p>
+            </button>
+          </form>
         </div>
       </div>
-      <button type="submit" id="travel-submit">
-        <p>Submiting</p>
-      </button>
-    </form>
+    </div>
   </body>
 </html>

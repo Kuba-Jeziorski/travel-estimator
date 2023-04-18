@@ -98,6 +98,7 @@ function initMap() {
     const start = Date.now();
     let results = [];
     let newResults = [];
+    // console.log(addresses);
     for (let i = 0; i < addresses.length; i++) {
       retryCount = 0; // Reset retry count for geocoding request
       try {
@@ -110,9 +111,8 @@ function initMap() {
         console.error(error.message);
       }
     }
-
     const uniquePlacesArray = [...new Set(newResults)];
-    console.log(newResults);
+    // console.log(newResults);
 
     const countryObj = uniquePlacesArray.reduce((accumulator, value) => {
       return { ...accumulator, [value]: "" };
@@ -155,13 +155,15 @@ function initMap() {
 
   const firstCoord = document.querySelector("#coord1");
   const secondCoord = document.querySelector("#coord2");
+  let newPath = {};
+  // console.log(newPath);
+  let newDist;
+  // console.log(newPath);
   map.addListener("click", (event) => {
     if (markers.length === 2) {
       window.alert(`enough of this clicking shiet`);
       return;
     }
-
-    if (markersCoords.length === 4) markersCoords.length = 0;
 
     let markerJSON = JSON.stringify(event.latLng.toJSON(), null, 2);
     let markerObject = JSON.parse(markerJSON);
@@ -171,8 +173,8 @@ function initMap() {
     markersCoords.push(markerObject.lng);
 
     if (markers.length === 2) {
-      firstCoord.innerHTML = `first coord works - markers.length === 2`;
-      secondCoord.innerHTML = `second coord works - markers.length === 2`;
+      firstCoord.innerHTML = `Origin - ${markersCoords[0]},${markersCoords[1]}`;
+      secondCoord.innerHTML = `Destination - ${markersCoords[2]},${markersCoords[3]}`;
       const request = {
         origin: `${markersCoords[0]},${markersCoords[1]}`,
         destination: `${markersCoords[2]},${markersCoords[3]}`,
@@ -184,21 +186,28 @@ function initMap() {
           // Display the driving directions on the map
           directionsRenderer.setDirections(result);
           const dist = result.routes[0].legs[0].distance.text;
+          newDist = dist;
+          // console.log(dist);
 
-          // points between two markers
+          // points between two markers - stays here IMPORTANT
+          // drawing polyline
           let polyline = result.routes[0].overview_polyline;
+          // goes submit IMPORTANT
           let path = google.maps.geometry.encoding.decodePath(polyline);
-          // i+=20, time about: 10.075, 17.464, 10.114, 13.164, 11.177, avg: 12,4s
-          // i+=10, time about: 32.235, 33.418, 39.782, 52.36, 32.154, avg: 38s
-          // i+=5, time about: 70.673, 83.225, 70.516, 132.312, 70.865, avg: 85.5s
-          for (let i = 0; i < path.length; i += 5) {
-            let point = path[i];
-            let coordsPoint = JSON.parse(JSON.stringify(point));
-            allPoints.push(coordsPoint);
-          }
+          newPath = google.maps.geometry.encoding.decodePath(polyline);
+          // i+=20, time about: 10.075, 17.464, 10.114, 13.164, 11.177, avg: 12,4s [1]
+          // i+=10, time about: 32.235, 33.418, 39.782, 52.36, 32.154, avg: 38s [2]
+          // i+=5, time about: 70.673, 83.225, 70.516, 132.312, 70.865, avg: 85.5s [3]
+          // goes to submit IMPORTANT
+          // for (let i = 0; i < path.length; i += 5) {
+          //   let point = path[i];
+          //   let coordsPoint = JSON.parse(JSON.stringify(point));
+          //   allPoints.push(coordsPoint);
+          // }
 
-          // points between two markers to countries + distances in each country
-          geocodeAddresses(allPoints, geocoder, dist);
+          // // points between two markers to countries + distances in each country
+          // // goes to submit IMPORTANT
+          // geocodeAddresses(allPoints, geocoder, dist);
         }
       });
     }
@@ -218,6 +227,25 @@ function initMap() {
       console.log(`coords are fine`);
     if (firstCoord.textContent === "" || secondCoord.textContent === "")
       console.log(`coords are NOT fine`);
+
+    // if (Object.keys(newPath).length !== 0 && newPath.constructor === Object) {
+    if (Object.keys(newPath).length == 0) console.log(`zero`);
+    if (Object.keys(newPath).length !== 0) {
+      console.log(`not zero`);
+      console.log(newPath.length);
+      for (let i = 0; i < newPath.length; i += 5) {
+        // console.log(i);
+        let point = newPath[i];
+        let coordsPoint = JSON.parse(JSON.stringify(point));
+        allPoints.push(coordsPoint);
+      }
+      // console.log(allPoints);
+
+      // points between two markers to countries + distances in each country
+      // goes to submit IMPORTANT
+      geocodeAddresses(allPoints, geocoder, newDist);
+    }
+    if (Object.keys(newPath).length === 0) console.log(`newPath is NOT fine`);
     console.log(`form submited`);
   };
 
@@ -235,4 +263,3 @@ output.innerHTML = slider.value; // Display the default slider value
 slider.oninput = function () {
   output.innerHTML = this.value;
 };
-console.log(`test`);
