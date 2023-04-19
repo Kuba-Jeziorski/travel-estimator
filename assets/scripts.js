@@ -8,6 +8,11 @@ const fuelConsumption = 5;
 // average cost (in euro!) for one litre of diesel fuel in Europe (10.04.2023)
 const diesel = 1.529475;
 
+const wholeDistance = document.querySelector("#whole-distance");
+const avgFuel = document.querySelector("#average-fuel");
+const fuelUsed = document.querySelector("#fuel-used");
+const finalResults = document.querySelector("#final-results");
+
 function initMap() {
   // IMPORTANT variables
   let markers = [];
@@ -94,7 +99,7 @@ function initMap() {
   }
 
   // coords -> country (all)
-  async function geocodeAddresses(addresses, geocoder, distance) {
+  async function geocodeAddresses(addresses, geocoder, distance, fuelCons) {
     const start = Date.now();
     let results = [];
     let newResults = [];
@@ -131,18 +136,22 @@ function initMap() {
       };
       countryObj[key] = countryDescription;
     }
+    wholeDistance.textContent = `whole distance is: ${numericDistance} km`;
     console.log(
       `[OUT] The distance between two markers is: ${numericDistance} km`
     );
+    avgFuel.textContent = `average fuel consumption: ${fuelCons} l/100 km`;
+    fuelUsed.textContent = `fuel used: ${(numericDistance / 100) * fuelCons} l`;
     console.log(
-      `[OUT] If my car consumes ${fuelConsumption}/100 km, total amount of consumed fuel is ${
-        (numericDistance / 100) * fuelConsumption
+      `[OUT] If my car consumes ${fuelCons}/100 km, total amount of consumed fuel is ${
+        (numericDistance / 100) * fuelCons
       } l`
     );
 
     for (let [key, _] of Object.entries(countryObj)) {
-      console.log(
-        `[OUT] Distance driven in ${key} is ${countryObj[key].distance} km`
+      finalResults.insertAdjacentHTML(
+        "beforeend",
+        `<p>Distance driven in ${key} is ${countryObj[key].distance} km</p>`
       );
     }
 
@@ -155,10 +164,9 @@ function initMap() {
 
   const firstCoord = document.querySelector("#coord1");
   const secondCoord = document.querySelector("#coord2");
-  let newPath = {};
-  // console.log(newPath);
-  let newDist;
-  // console.log(newPath);
+  let pathBetween = {};
+  let distanceBetween;
+
   map.addListener("click", (event) => {
     if (markers.length === 2) {
       window.alert(`enough of this clicking shiet`);
@@ -185,29 +193,11 @@ function initMap() {
         if (status == "OK") {
           // Display the driving directions on the map
           directionsRenderer.setDirections(result);
-          const dist = result.routes[0].legs[0].distance.text;
-          newDist = dist;
-          // console.log(dist);
+          distanceBetween = result.routes[0].legs[0].distance.text;
 
-          // points between two markers - stays here IMPORTANT
-          // drawing polyline
+          // points between two markers
           let polyline = result.routes[0].overview_polyline;
-          // goes submit IMPORTANT
-          let path = google.maps.geometry.encoding.decodePath(polyline);
-          newPath = google.maps.geometry.encoding.decodePath(polyline);
-          // i+=20, time about: 10.075, 17.464, 10.114, 13.164, 11.177, avg: 12,4s [1]
-          // i+=10, time about: 32.235, 33.418, 39.782, 52.36, 32.154, avg: 38s [2]
-          // i+=5, time about: 70.673, 83.225, 70.516, 132.312, 70.865, avg: 85.5s [3]
-          // goes to submit IMPORTANT
-          // for (let i = 0; i < path.length; i += 5) {
-          //   let point = path[i];
-          //   let coordsPoint = JSON.parse(JSON.stringify(point));
-          //   allPoints.push(coordsPoint);
-          // }
-
-          // // points between two markers to countries + distances in each country
-          // // goes to submit IMPORTANT
-          // geocodeAddresses(allPoints, geocoder, dist);
+          pathBetween = google.maps.geometry.encoding.decodePath(polyline);
         }
       });
     }
@@ -216,50 +206,105 @@ function initMap() {
   // IMPORTANT main function
 
   const travelForm = document.querySelector("#travel-form");
+  const formSubmit = document.querySelector("#form-submit");
+
   const travelConsumption = document.querySelector("#travel-consumption");
   const travelPrecision = document.querySelector("#travel-precision");
 
+  // on-submit function
   const mainFunction = function (e) {
     if (e) e.preventDefault();
-    console.log(travelConsumption.value);
-    console.log(travelPrecision.value);
-    if (firstCoord.textContent !== "" && secondCoord.textContent !== "")
-      console.log(`coords are fine`);
-    if (firstCoord.textContent === "" || secondCoord.textContent === "")
-      console.log(`coords are NOT fine`);
+    console.log(`---`);
 
-    // if (Object.keys(newPath).length !== 0 && newPath.constructor === Object) {
-    if (Object.keys(newPath).length == 0) console.log(`zero`);
-    if (Object.keys(newPath).length !== 0) {
-      console.log(`not zero`);
-      console.log(newPath.length);
-      for (let i = 0; i < newPath.length; i += 5) {
-        // console.log(i);
-        let point = newPath[i];
+    // form conditionals
+    const firstCoordContent = firstCoord.textContent;
+    const secondCoordContent = firstCoord.textContent;
+    const pathBetweenLength = Object.keys(pathBetween).length;
+    const fuelConsumption = +travelConsumption.value;
+    const precision = travelPrecision.value;
+
+    console.log(`precisition: ${precision}`);
+    if (firstCoordContent !== "" && secondCoordContent !== "")
+      console.log(`coords are fine`);
+    if (firstCoordContent === "" || secondCoordContent === "")
+      console.log(`coords are NOT fine`);
+    if (fuelConsumption === 0) console.log(`consumption is NOT set`);
+    if (fuelConsumption !== 0)
+      console.log(`consumption is set to ${fuelConsumption}`);
+    if (pathBetweenLength === 0) console.log(`path is NOT fine`);
+    if (pathBetweenLength !== 0) {
+      console.log(`path is fine`);
+      console.log(pathBetween.length);
+    }
+
+    // every condition is met
+    if (
+      firstCoordContent !== "" &&
+      secondCoordContent !== "" &&
+      pathBetweenLength !== 0 &&
+      fuelConsumption !== 0
+    ) {
+      console.log(`all conditions met`);
+
+      let increment = 0;
+      console.log(precision);
+      switch (true) {
+        case precision == 1:
+          console.log("switch precision 1 - low precision");
+          increment = 20;
+          break;
+        case precision == 2:
+          console.log("switch precision 2 - medium precision");
+          increment = 10;
+          break;
+        default:
+          console.log(`switch precision 3 - high precision`);
+          increment = 5;
+      }
+
+      for (let i = 0; i < pathBetween.length; i += increment) {
+        let point = pathBetween[i];
+        console.log(point);
         let coordsPoint = JSON.parse(JSON.stringify(point));
         allPoints.push(coordsPoint);
       }
-      // console.log(allPoints);
 
       // points between two markers to countries + distances in each country
-      // goes to submit IMPORTANT
-      geocodeAddresses(allPoints, geocoder, newDist);
+      geocodeAddresses(allPoints, geocoder, distanceBetween, fuelConsumption);
     }
-    if (Object.keys(newPath).length === 0) console.log(`newPath is NOT fine`);
+
     console.log(`form submited`);
+    formSubmit.textContent = `RESET`;
   };
 
-  travelForm.addEventListener("submit", function (e) {
-    mainFunction(e);
-  });
+  travelForm.addEventListener(
+    "submit",
+    function (e) {
+      mainFunction(e);
+    },
+    { once: true }
+  );
 }
 
 // range-picker
 let slider = document.getElementById("travel-precision");
-let output = document.getElementById("demo");
-output.innerHTML = slider.value; // Display the default slider value
+let output = document.getElementById("travel-precision-output");
+
+// default state
+output.innerHTML = `2 - medium`;
 
 // Update the current slider value (each time you drag the slider handle)
 slider.oninput = function () {
-  output.innerHTML = this.value;
+  let precision = "";
+  switch (true) {
+    case this.value == 1:
+      precision = `low precision`;
+      break;
+    case this.value == 2:
+      precision = `medium precision`;
+      break;
+    default:
+      precision = `high precision`;
+  }
+  output.innerHTML = `${this.value} - ${precision}`;
 };

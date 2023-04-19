@@ -10,118 +10,161 @@ html {
 body {
   @include fullSized;
   @include default;
-  font-size: 16px;
+  color: $secondary-color;
+  background: $primary-color;
+  font-size: 18px;
   line-height: 1.5;
+  font-family: "Albert Sans";
+  font-weight: 300;
 }
 
-#map {
-  // @include fullSize;
-  width: 100%;
-  height: 50vh;
+h1,
+h2,
+p {
+  @include default;
 }
 
-/*accordion*/
-$midnight: #2c3e50;
-$clouds: #ecf0f1;
-// General
-body {
-  color: $midnight;
-  background: $clouds;
-  padding: 0 1em 1em;
-}
-h1 {
-  margin: 0;
-  line-height: 2;
-  text-align: center;
-}
+h1,
 h2 {
-  margin: 0 0 0.5em;
-  font-weight: normal;
+  font-size: 2vw;
 }
+
 input {
   position: absolute;
   opacity: 0;
   z-index: -1;
 }
-// Layout
-.row {
-  display: flex;
-  .col {
-    flex: 1;
-    &:last-child {
-      margin-left: 1em;
-    }
+
+button {
+  margin: 30px auto 0;
+  font-size: 18px;
+  cursor: pointer;
+  font-family: "Albert Sans";
+  font-weight: 300;
+  background-color: $quaternary-color;
+  color: $tertiary-color;
+  border: 1px solid $tertiary-color;
+  transition: background 0.35s;
+
+  &:hover {
+    background: darken($quaternary-color, 10%);
   }
 }
-/* Accordion styles */
+
+.flex {
+  &-nw {
+    @include flex;
+    flex-wrap: nowrap;
+  }
+  &-w {
+    @include flex;
+    flex-wrap: wrap;
+  }
+  &-col {
+    @include flex;
+    flex-direction: column;
+  }
+  &-c {
+    @include flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.padding {
+  &-x {
+    padding: 60px 0;
+  }
+
+  &-button {
+    padding: 15px 30px;
+  }
+}
+
+.centered {
+  text-align: center;
+}
+
+.full-width {
+  @include fullWidth;
+}
+
+#map {
+  @include fullWidth;
+  height: 50vh;
+}
+
+.traveler {
+  &-wrapper {
+    @include fullWidth;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  &-coord {
+    padding: 1em 0 0;
+    gap: 1em;
+  }
+}
+
 .tabs {
-  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 4px -2px rgba(0, 0, 0, 0.5);
-}
-.tab {
-  width: 100%;
-  color: white;
-  overflow: hidden;
-  &-label {
-    display: flex;
-    justify-content: space-between;
-    padding: 1em;
-    background: $midnight;
-    font-weight: bold;
-    cursor: pointer;
-    /* Icon */
-    &:hover {
-      background: darken($midnight, 10%);
+
+  .tab {
+    @include fullWidth;
+    color: $tertiary-color;
+    overflow: hidden;
+
+    &-label {
+      display: flex;
+      justify-content: space-between;
+      padding: 1em;
+
+      background: $quaternary-color;
+      cursor: pointer;
+      border: 1px solid $tertiary-color;
+
+      &:hover {
+        background: darken($quaternary-color, 10%);
+      }
+
+      &::after {
+        content: "\276F";
+        width: 1em;
+        height: 1em;
+        text-align: center;
+        transition: all 0.35s;
+      }
     }
-    &::after {
-      content: "\276F";
-      width: 1em;
-      height: 1em;
-      text-align: center;
+
+    &-content {
+      max-height: 0;
+      padding: 0 1em;
+      color: $quaternary-color;
+      background: $tertiary-color;
       transition: all 0.35s;
-    }
-  }
-  &-content {
-    max-height: 0;
-    padding: 0 1em;
-    color: $midnight;
-    background: white;
-    transition: all 0.35s;
-  }
-  &-close {
-    display: flex;
-    justify-content: flex-end;
-    padding: 1em;
-    font-size: 0.75em;
-    background: $midnight;
-    cursor: pointer;
-    &:hover {
-      background: darken($midnight, 10%);
     }
   }
 }
 
-// :checked
 input:checked {
   + .tab-label {
-    background: darken($midnight, 10%);
+    background: darken($quaternary-color, 10%);
     &::after {
       transform: rotate(90deg);
     }
   }
+
   ~ .tab-content {
     max-height: 100vh;
     padding: 1em;
   }
 }
 
-// range-picker
 .slider {
   -webkit-appearance: none;
-  width: 100%;
+  @include fullWidth;
   height: 15px;
-  border-radius: 5px;
   background: #d3d3d3;
   outline: none;
   opacity: 0.7;
@@ -135,7 +178,7 @@ input:checked {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: #04aa6d;
+  background: $secondary-color;
   cursor: pointer;
 }
 

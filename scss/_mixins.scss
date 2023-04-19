@@ -1,3 +1,12 @@
+@mixin default {
+  margin: 0;
+  padding: 0;
+  margin-block-start: 0;
+  margin-block-end: 0;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
 @mixin fullSize {
   width: 100%;
   height: 100%;
@@ -8,7 +17,10 @@
   height: 100vh;
 }
 
-@mixin default {
-  margin: 0;
-  padding: 0;
+@mixin fullWidth {
+  width: 100%;
+}
+
+@mixin flex {
+  display: flex;
 }

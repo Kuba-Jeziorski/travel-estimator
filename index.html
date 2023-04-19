@@ -15,72 +15,87 @@
     <link rel="icon" type="image/x-icon" href="/assets/img/earth-icon.svg" />
   </head>
   <body>
-    <!-- <div id="map" class="new"></div> -->
-
-    <!-- form -->
-    <div class="row">
-      <div class="col">
-        <div class="tabs">
-          <div class="tab">
-            <input type="radio" id="rd1" name="rd" />
-            <label class="tab-label" for="rd1">Information</label>
-            <div class="tab-content">
-              Basic information how to use this script.
-            </div>
-          </div>
-          <div class="tab">
-            <!-- required -->
-            <input type="radio" id="rd2" name="rd" />
-            <label class="tab-label" for="rd2">Origin and destination</label>
-            <div class="tab-content">
-              <div id="map" class="new"></div>
-              <p id="coord1"></p>
-              <p id="coord2"></p>
-            </div>
-          </div>
-          <form id="travel-form">
+    <div class="traveler-wrapper padding-x">
+      <h1 class="centered">Travel Estimator</h1>
+      <div class="row padding-x">
+        <div class="col">
+          <div class="tabs">
             <div class="tab">
-              <!-- required -->
-              <input type="radio" id="rd3" name="rd" />
-              <label class="tab-label" for="rd3">Fuel consumption [form]</label>
+              <input type="checkbox" id="chck1" />
+              <label class="tab-label" for="chck1">Information</label>
               <div class="tab-content">
-                Input type number when user insert fuel consumption of his
-                vehicle.
-                <input
-                  style="position: relative; z-index: 1; opacity: 1"
-                  type="number"
-                  id="travel-consumption"
-                  name="consumption"
-                  min="0"
-                  max="100"
-                />
+                Basic information how to use this script.
               </div>
             </div>
             <div class="tab">
-              <!-- required -->
-              <input type="radio" id="rd4" name="rd" />
-              <label class="tab-label" for="rd4">Precision [form]</label>
+              <input type="checkbox" id="chck2" />
+              <label class="tab-label" for="chck2"
+                >Origin and destination</label
+              >
               <div class="tab-content">
-                Range picker (3 options) for precision of result.
-                <div class="slidecontainer">
-                  <input
-                    style="position: relative; z-index: 1; opacity: 1"
-                    type="range"
-                    min="1"
-                    max="3"
-                    value="2"
-                    class="slider"
-                    id="travel-precision"
-                  />
-                  <p>Value: <span id="demo"></span></p>
+                <div id="map"></div>
+                <div class="traveler-coord full-width flex-col">
+                  <p id="coord1"></p>
+                  <p id="coord2"></p>
                 </div>
               </div>
             </div>
-            <button type="submit" id="travel-submit">
-              <p>Submiting</p>
-            </button>
-          </form>
+            <form id="travel-form">
+              <div class="tab">
+                <input type="checkbox" id="chck3" />
+                <label class="tab-label" for="chck3"
+                  >Fuel consumption [form]</label
+                >
+                <div class="tab-content">
+                  Input type number when user insert fuel consumption of his
+                  vehicle.
+                  <input
+                    style="position: relative; z-index: 1; opacity: 1"
+                    type="number"
+                    id="travel-consumption"
+                    name="consumption"
+                    min="0"
+                    max="100"
+                    value="0"
+                  />
+                </div>
+              </div>
+              <div class="tab">
+                <!-- required -->
+                <input type="checkbox" id="chck4" />
+                <label class="tab-label" for="chck4">Precision [form]</label>
+                <div class="tab-content">
+                  Range picker (3 options) for precision of result.
+                  <div class="slidecontainer">
+                    <input
+                      style="position: relative; z-index: 1; opacity: 1"
+                      type="range"
+                      min="1"
+                      max="3"
+                      value="2"
+                      class="slider"
+                      id="travel-precision"
+                    />
+                    <div class="full-width flex-c">
+                      <p>Value: <span id="travel-precision-output"></span></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="full-width flex-c">
+                <button class="padding-button" type="submit" id="travel-submit">
+                  <p id="form-submit">Submiting</p>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
+      <div id="final-results" style="display: flex; flex-direction: column">
+        <h2 class="centered">Results</h2>
+        <p id="whole-distance"></p>
+        <p id="average-fuel"></p>
+        <p id="fuel-used"></p>
       </div>
     </div>
   </body>
