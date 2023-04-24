@@ -35,8 +35,8 @@
               <div class="tab-content">
                 <div id="map"></div>
                 <div class="traveler-coord full-width flex-col">
-                  <p id="coord1"></p>
-                  <p id="coord2"></p>
+                  <p id="coord1" class="centered"></p>
+                  <p id="coord2" class="centered"></p>
                 </div>
               </div>
             </div>
@@ -46,17 +46,26 @@
                 <label class="tab-label" for="chck3"
                   >Fuel consumption [form]</label
                 >
-                <div class="tab-content">
-                  Input type number when user insert fuel consumption of his
-                  vehicle.
+                <div class="tab-content centered">
+                  <p>
+                    Input type number when user insert fuel consumption of his
+                    vehicle (l / 100 km).
+                  </p>
                   <input
-                    style="position: relative; z-index: 1; opacity: 1"
+                    class="centered"
+                    style="
+                      position: relative;
+                      z-index: 1;
+                      opacity: 1;
+                      width: 150px;
+                      margin: 1em 0 0;
+                    "
                     type="number"
                     id="travel-consumption"
                     name="consumption"
                     min="0"
                     max="100"
-                    value="0"
+                    placeholder="insert value here"
                   />
                 </div>
               </div>
@@ -64,11 +73,17 @@
                 <!-- required -->
                 <input type="checkbox" id="chck4" />
                 <label class="tab-label" for="chck4">Precision [form]</label>
-                <div class="tab-content">
-                  Range picker (3 options) for precision of result.
-                  <div class="slidecontainer">
+                <div class="tab-content centered">
+                  <p>Range picker (3 options) for precision of result.</p>
+                  <div class="slidecontainer centered">
                     <input
-                      style="position: relative; z-index: 1; opacity: 1"
+                      style="
+                        position: relative;
+                        z-index: 1;
+                        opacity: 1;
+                        width: 200px;
+                        margin: 1em 0 0;
+                      "
                       type="range"
                       min="1"
                       max="3"
@@ -77,7 +92,9 @@
                       id="travel-precision"
                     />
                     <div class="full-width flex-c">
-                      <p>Value: <span id="travel-precision-output"></span></p>
+                      <p style="margin: 2em, 0 0; opacity: 0.5">
+                        Value: <span id="travel-precision-output"></span>
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -91,11 +108,25 @@
           </div>
         </div>
       </div>
-      <div id="final-results" style="display: flex; flex-direction: column">
-        <h2 class="centered">Results</h2>
-        <p id="whole-distance"></p>
-        <p id="average-fuel"></p>
-        <p id="fuel-used"></p>
+      <div
+        id="final-results"
+        class="centered"
+        style="display: flex; flex-direction: column"
+      >
+        <h2>Results</h2>
+        <div class="final-wrapper">
+          <div class="places-box">
+            <p id="trip-origin"></p>
+            <p id="trip-destination"></p>
+          </div>
+          <div class="distance-box"></div>
+          <div class="sum-box">
+            <p id="whole-distance"></p>
+            <p id="average-fuel"></p>
+            <p id="fuel-used"></p>
+            <p id="trip-cost"></p>
+          </div>
+        </div>
       </div>
     </div>
   </body>

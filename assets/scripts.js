@@ -8,10 +8,19 @@ const fuelConsumption = 5;
 // average cost (in euro!) for one litre of diesel fuel in Europe (10.04.2023)
 const diesel = 1.529475;
 
+const tripOrigin = document.querySelector("#trip-origin");
+const tripDestination = document.querySelector("#trip-destination");
 const wholeDistance = document.querySelector("#whole-distance");
 const avgFuel = document.querySelector("#average-fuel");
 const fuelUsed = document.querySelector("#fuel-used");
+const tripCost = document.querySelector("#trip-cost");
 const finalResults = document.querySelector("#final-results");
+
+const placesBox = document.querySelector(".places-box");
+const distanceBox = document.querySelector(".distance-box");
+const sumBox = document.querySelector(".sum-box");
+
+const finalWrapper = document.querySelector(".final-wrapper");
 
 function initMap() {
   // IMPORTANT variables
@@ -103,6 +112,8 @@ function initMap() {
     const start = Date.now();
     let results = [];
     let newResults = [];
+    let places = [];
+    let firstAndLast = [];
     // console.log(addresses);
     for (let i = 0; i < addresses.length; i++) {
       retryCount = 0; // Reset retry count for geocoding request
@@ -112,12 +123,15 @@ function initMap() {
         newResults = results
           .map((e) => e.formatted_address)
           .map((e) => e.split(" ").pop());
+        places = results.map((e) => e.formatted_address);
       } catch (error) {
         console.error(error.message);
       }
     }
+    firstAndLast.push(places[places.length - 1]);
+    firstAndLast.push(places[0]);
+
     const uniquePlacesArray = [...new Set(newResults)];
-    // console.log(newResults);
 
     const countryObj = uniquePlacesArray.reduce((accumulator, value) => {
       return { ...accumulator, [value]: "" };
@@ -136,26 +150,57 @@ function initMap() {
       };
       countryObj[key] = countryDescription;
     }
-    wholeDistance.textContent = `whole distance is: ${numericDistance} km`;
+
+    tripOrigin.innerHTML = `Origin: <span>${firstAndLast[1]}</span>`;
+    tripDestination.innerHTML = `Destination: <span>${firstAndLast[0]}</span>`;
+
+    for (let [key, _] of Object.entries(countryObj)) {
+      distanceBox.insertAdjacentHTML(
+        "beforeend",
+        `<p>Distance driven in <span>${key}</span> is <span>${countryObj[key].distance} km</span></p>`
+      );
+      console.log(`added`);
+    }
+
+    wholeDistance.innerHTML = `whole distance is: <span>${numericDistance} km</span>`;
     console.log(
       `[OUT] The distance between two markers is: ${numericDistance} km`
     );
-    avgFuel.textContent = `average fuel consumption: ${fuelCons} l/100 km`;
-    fuelUsed.textContent = `fuel used: ${(numericDistance / 100) * fuelCons} l`;
+    avgFuel.innerHTML = `average fuel consumption is <span>${fuelCons} l/100 km</span>`;
+    let wholeFuel = (numericDistance / 100) * fuelCons;
+    fuelUsed.innerHTML = `fuel used is <span>${Number.parseFloat(
+      wholeFuel
+    ).toFixed(2)} l</span>`;
     console.log(
       `[OUT] If my car consumes ${fuelCons}/100 km, total amount of consumed fuel is ${
         (numericDistance / 100) * fuelCons
       } l`
     );
+    let wholeCost = (numericDistance / 100) * fuelCons * diesel;
+    tripCost.innerHTML = `Cost of whole trip is <span>${Number.parseFloat(
+      wholeCost
+    ).toFixed(2)}€</span> (data from 10.04.2023)`;
 
-    for (let [key, _] of Object.entries(countryObj)) {
-      finalResults.insertAdjacentHTML(
-        "beforeend",
-        `<p>Distance driven in ${key} is ${countryObj[key].distance} km</p>`
-      );
-    }
+    finalWrapper.style.display = "block";
 
     console.log(countryObj);
+
+    console.log(distanceBox);
+    // it shows value when declared; can't be declared at the beggining of script
+    const distanceBoxContent = document.querySelectorAll(".distance-box p");
+    const distanceBoxContentArray = [...distanceBoxContent];
+    console.log(distanceBoxContentArray);
+
+    let distanceIndex = 0;
+    const intervalId = setInterval(() => {
+      console.log(distanceBoxContentArray[distanceIndex].innerText);
+      distanceIndex++;
+
+      if (distanceIndex === distanceBoxContentArray.length) {
+        clearInterval(intervalId);
+      }
+    }, 1000);
+
     const end = Date.now();
     console.log(`[OUT] Execution time: ${(end - start) / 1000} s`);
   }
@@ -181,8 +226,9 @@ function initMap() {
     markersCoords.push(markerObject.lng);
 
     if (markers.length === 2) {
-      firstCoord.innerHTML = `Origin - ${markersCoords[0]},${markersCoords[1]}`;
-      secondCoord.innerHTML = `Destination - ${markersCoords[2]},${markersCoords[3]}`;
+      // origin / destination
+      firstCoord.innerHTML = `Origin coords - <span>${markersCoords[0]}, ${markersCoords[1]}</span>`;
+      secondCoord.innerHTML = `Destination coords - <span>${markersCoords[2]}, ${markersCoords[3]}</span>`;
       const request = {
         origin: `${markersCoords[0]},${markersCoords[1]}`,
         destination: `${markersCoords[2]},${markersCoords[3]}`,
@@ -264,7 +310,6 @@ function initMap() {
 
       for (let i = 0; i < pathBetween.length; i += increment) {
         let point = pathBetween[i];
-        console.log(point);
         let coordsPoint = JSON.parse(JSON.stringify(point));
         allPoints.push(coordsPoint);
       }
@@ -291,7 +336,7 @@ let slider = document.getElementById("travel-precision");
 let output = document.getElementById("travel-precision-output");
 
 // default state
-output.innerHTML = `2 - medium`;
+output.innerHTML = `2 - medium precision`;
 
 // Update the current slider value (each time you drag the slider handle)
 slider.oninput = function () {
@@ -308,3 +353,13 @@ slider.oninput = function () {
   }
   output.innerHTML = `${this.value} - ${precision}`;
 };
+
+// add cost of whole trip - done
+// take care of front - make final look - done
+
+// add information
+// add fade-in effect in each line of result
+// add rotating Earth while loading content + white opacity
+// add RESET on submit button while submitted
+// optimalize js
+// optimalize scss

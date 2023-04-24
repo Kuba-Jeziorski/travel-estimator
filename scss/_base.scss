@@ -189,3 +189,61 @@ input:checked {
   background: #04aa6d;
   cursor: pointer;
 }
+
+::placeholder {
+  color: $secondary-color;
+  font-weight: 500;
+}
+
+#coord1,
+#coord2 {
+  span {
+    color: $secondary-color;
+    font-weight: 500;
+  }
+}
+
+#travel {
+  &-consumption {
+    border: none;
+    font-size: 18px;
+    color: $secondary-color;
+    appearance: none;
+    cursor: pointer;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+
+    // ::placeholder {
+    //   color: $secondary-color;
+    // }
+  }
+
+  &-precision {
+    cursor: pointer;
+  }
+}
+
+#final-results {
+  .final-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    display: none;
+  }
+  p {
+    font-weight: 500;
+    margin: 0 0 1em;
+    color: $tertiary-color;
+
+    span {
+      color: $secondary-color;
+    }
+  }
+}

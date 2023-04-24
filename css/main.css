@@ -187,3 +187,39 @@ input:checked ~ .tab-content {
   border-radius: 50%;
   background: #04aa6d;
   cursor: pointer; }
+
+::placeholder {
+  color: #fe6f27;
+  font-weight: 500; }
+
+#coord1 span,
+#coord2 span {
+  color: #fe6f27;
+  font-weight: 500; }
+
+#travel-consumption {
+  border: none;
+  font-size: 18px;
+  color: #fe6f27;
+  appearance: none;
+  cursor: pointer; }
+  #travel-consumption::-webkit-outer-spin-button, #travel-consumption::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0; }
+  #travel-consumption:focus-visible {
+    outline: none; }
+
+#travel-precision {
+  cursor: pointer; }
+
+#final-results .final-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  display: none; }
+
+#final-results p {
+  font-weight: 500;
+  margin: 0 0 1em;
+  color: #fff; }
+  #final-results p span {
+    color: #fe6f27; }
