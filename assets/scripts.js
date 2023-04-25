@@ -361,5 +361,6 @@ slider.oninput = function () {
 // add fade-in effect in each line of result
 // add rotating Earth while loading content + white opacity
 // add RESET on submit button while submitted
+// add euro value from currency api
 // optimalize js
 // optimalize scss
