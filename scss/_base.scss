@@ -51,6 +51,15 @@ button {
   }
 }
 
+button[disabled] {
+  transition: none;
+  cursor: no-drop;
+
+  &:hover {
+    background-color: $quaternary-color;
+  }
+}
+
 .flex {
   &-nw {
     @include flex;
@@ -104,6 +113,42 @@ button {
   &-coord {
     padding: 1em 0 0;
     gap: 1em;
+  }
+
+  &-opacity {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0);
+    width: 100%;
+    transition: background 0.3s;
+  }
+
+  &-opacity.visible {
+    background: rgba(0, 0, 0, 0.8);
+
+    &::after {
+      position: absolute;
+      content: "";
+      top: 50%;
+      left: 50%;
+      translate: -50% -50%;
+      width: 100px;
+      height: 100px;
+      background-image: url(../assets/img/earth-loading.svg);
+      border-radius: 50%;
+      animation: rotating 5s infinite;
+    }
+  }
+}
+
+@keyframes rotating {
+  0% {
+    rotate: 0deg;
+  }
+
+  100% {
+    rotate: 360deg;
   }
 }
 
@@ -162,6 +207,7 @@ input:checked {
 }
 
 .slider {
+  appearance: none;
   -webkit-appearance: none;
   @include fullWidth;
   height: 15px;
@@ -220,10 +266,6 @@ input:checked {
     &:focus-visible {
       outline: none;
     }
-
-    // ::placeholder {
-    //   color: $secondary-color;
-    // }
   }
 
   &-precision {
@@ -246,4 +288,8 @@ input:checked {
       color: $secondary-color;
     }
   }
+}
+
+#reset {
+  display: none;
 }

@@ -2,40 +2,44 @@
 
 // const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
 
-// litres for 100 km;
-const fuelConsumption = 5;
-
-// average cost (in euro!) for one litre of diesel fuel in Europe (10.04.2023)
-const diesel = 1.529475;
-
-const tripOrigin = document.querySelector("#trip-origin");
-const tripDestination = document.querySelector("#trip-destination");
-const wholeDistance = document.querySelector("#whole-distance");
+// IMPORTANT global variables
 const avgFuel = document.querySelector("#average-fuel");
-const fuelUsed = document.querySelector("#fuel-used");
-const tripCost = document.querySelector("#trip-cost");
-const finalResults = document.querySelector("#final-results");
-
-const placesBox = document.querySelector(".places-box");
+const buttons = document.querySelectorAll("button");
+const checkboxes = document.querySelectorAll("input[type=checkbox]");
+const checkboxesArray = [...checkboxes];
 const distanceBox = document.querySelector(".distance-box");
-const sumBox = document.querySelector(".sum-box");
-
+const finalResults = document.querySelector("#final-results");
 const finalWrapper = document.querySelector(".final-wrapper");
+const fuelUsed = document.querySelector("#fuel-used");
+const opacityAfterSubmit = document.querySelector(".traveler-opacity");
+const resetButton = document.querySelector("#reset");
+const travelConsumption = document.querySelector("#travel-consumption");
+const travelCost = document.querySelector("#travel-cost");
+const travelDestination = document.querySelector("#travel-destination");
+const travelForm = document.querySelector("#travel-form");
+const travelOrigin = document.querySelector("#travel-origin");
+const travelPrecision = document.querySelector("#travel-precision");
+const travelSubmit = document.querySelector("#travel-submit");
+const wholeDistance = document.querySelector("#whole-distance");
 
 function initMap() {
-  // IMPORTANT variables
+  // IMPORTANT initMap() variables
+  const firstCoord = document.querySelector("#coord1");
+  const secondCoord = document.querySelector("#coord2");
+
+  let pathBetween = {};
+  let distanceBetween;
   let markers = [];
   let markersCoords = [];
   let allPoints = [];
 
   // preventing too long promises (coords -> countries)
-  const retryDelay = 1000;
-  const maxRetryCount = 5;
   let retryCount = 0;
+  const maxRetryCount = 5;
+  const retryDelay = 1000;
 
   const mapZoom = 5;
   const mapCenter = { lat: 47.751569, lng: 1.675063 };
-
   const options = {
     zoom: mapZoom,
     center: mapCenter,
@@ -114,9 +118,8 @@ function initMap() {
     let newResults = [];
     let places = [];
     let firstAndLast = [];
-    // console.log(addresses);
     for (let i = 0; i < addresses.length; i++) {
-      retryCount = 0; // Reset retry count for geocoding request
+      retryCount = 0;
       try {
         const result = await geocodeAddress(addresses[i], geocoder);
         results.push(result);
@@ -151,24 +154,23 @@ function initMap() {
       countryObj[key] = countryDescription;
     }
 
-    tripOrigin.innerHTML = `Origin: <span>${firstAndLast[1]}</span>`;
-    tripDestination.innerHTML = `Destination: <span>${firstAndLast[0]}</span>`;
+    travelOrigin.innerHTML = `Origin: <span>${firstAndLast[1]}</span>`;
+    travelDestination.innerHTML = `Destination: <span>${firstAndLast[0]}</span>`;
 
     for (let [key, _] of Object.entries(countryObj)) {
       distanceBox.insertAdjacentHTML(
         "beforeend",
         `<p>Distance driven in <span>${key}</span> is <span>${countryObj[key].distance} km</span></p>`
       );
-      console.log(`added`);
     }
 
-    wholeDistance.innerHTML = `whole distance is: <span>${numericDistance} km</span>`;
+    wholeDistance.innerHTML = `Whole distance is: <span>${numericDistance} km</span>`;
     console.log(
       `[OUT] The distance between two markers is: ${numericDistance} km`
     );
-    avgFuel.innerHTML = `average fuel consumption is <span>${fuelCons} l/100 km</span>`;
+    avgFuel.innerHTML = `Average fuel consumption is <span>${fuelCons} l/100 km</span>`;
     let wholeFuel = (numericDistance / 100) * fuelCons;
-    fuelUsed.innerHTML = `fuel used is <span>${Number.parseFloat(
+    fuelUsed.innerHTML = `Fuel used is <span>${Number.parseFloat(
       wholeFuel
     ).toFixed(2)} l</span>`;
     console.log(
@@ -176,45 +178,47 @@ function initMap() {
         (numericDistance / 100) * fuelCons
       } l`
     );
-    let wholeCost = (numericDistance / 100) * fuelCons * diesel;
-    tripCost.innerHTML = `Cost of whole trip is <span>${Number.parseFloat(
-      wholeCost
-    ).toFixed(2)}€</span> (data from 10.04.2023)`;
 
-    finalWrapper.style.display = "block";
+    // i dont like this nested fetching
+    // it would be better to set it outside of geocodeAddresses
+    (function () {
+      fetch("http://api.nbp.pl/api/exchangerates/rates/c/eur/today/")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          const currency = data.rates[0].ask;
+          let wholeCost = (numericDistance / 100) * fuelCons * currency;
+
+          travelCost.innerHTML = `Cost of whole travel is <span>${Number.parseFloat(
+            wholeCost
+          ).toFixed(2)}€</span>`;
+        })
+        .catch((error) => {
+          console.error("There was a problem fetching the data:", error);
+        });
+    })();
 
     console.log(countryObj);
 
-    console.log(distanceBox);
-    // it shows value when declared; can't be declared at the beggining of script
-    const distanceBoxContent = document.querySelectorAll(".distance-box p");
-    const distanceBoxContentArray = [...distanceBoxContent];
-    console.log(distanceBoxContentArray);
+    finalWrapper.style.display = "block";
 
-    let distanceIndex = 0;
-    const intervalId = setInterval(() => {
-      console.log(distanceBoxContentArray[distanceIndex].innerText);
-      distanceIndex++;
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 
-      if (distanceIndex === distanceBoxContentArray.length) {
-        clearInterval(intervalId);
-      }
-    }, 1000);
+    opacityAfterSubmit.classList.remove("visible");
+    opacityAfterSubmit.style.height = "0";
 
     const end = Date.now();
     console.log(`[OUT] Execution time: ${(end - start) / 1000} s`);
   }
 
-  //IMPORTANT listener
-
-  const firstCoord = document.querySelector("#coord1");
-  const secondCoord = document.querySelector("#coord2");
-  let pathBetween = {};
-  let distanceBetween;
-
+  // markers on map
   map.addListener("click", (event) => {
     if (markers.length === 2) {
-      window.alert(`enough of this clicking shiet`);
+      window.alert(`You already set origin and destination points!`);
       return;
     }
 
@@ -249,14 +253,6 @@ function initMap() {
     }
   });
 
-  // IMPORTANT main function
-
-  const travelForm = document.querySelector("#travel-form");
-  const formSubmit = document.querySelector("#form-submit");
-
-  const travelConsumption = document.querySelector("#travel-consumption");
-  const travelPrecision = document.querySelector("#travel-precision");
-
   // on-submit function
   const mainFunction = function (e) {
     if (e) e.preventDefault();
@@ -272,9 +268,14 @@ function initMap() {
     console.log(`precisition: ${precision}`);
     if (firstCoordContent !== "" && secondCoordContent !== "")
       console.log(`coords are fine`);
-    if (firstCoordContent === "" || secondCoordContent === "")
+    if (firstCoordContent === "" || secondCoordContent === "") {
+      alert(`Origin and destination points are not set properly`);
       console.log(`coords are NOT fine`);
-    if (fuelConsumption === 0) console.log(`consumption is NOT set`);
+    }
+    if (fuelConsumption === 0) {
+      alert(`Fuel consumption is not set properly`);
+      console.log(`consumption is NOT set`);
+    }
     if (fuelConsumption !== 0)
       console.log(`consumption is set to ${fuelConsumption}`);
     if (pathBetweenLength === 0) console.log(`path is NOT fine`);
@@ -314,45 +315,58 @@ function initMap() {
         allPoints.push(coordsPoint);
       }
 
-      // points between two markers to countries + distances in each country
+      checkboxesArray.map((checkbox) => (checkbox.checked = false));
+
+      opacityAfterSubmit.classList.add("visible");
+      opacityAfterSubmit.style.height = "100vh";
+      travelSubmit.disabled = `disabled`;
+      resetButton.style.display = "block";
+      const buttonsArray = [...buttons];
+      buttonsArray.map((button) => (button.style.margin = "30px 10px 0"));
+
       geocodeAddresses(allPoints, geocoder, distanceBetween, fuelConsumption);
     }
-
     console.log(`form submited`);
-    formSubmit.textContent = `RESET`;
   };
 
-  travelForm.addEventListener(
-    "submit",
-    function (e) {
-      mainFunction(e);
-    },
-    { once: true }
-  );
+  travelForm.addEventListener("submit", function (e) {
+    mainFunction(e);
+  });
+
+  resetButton.addEventListener("click", function () {
+    // origin and destination markers out
+    // fuel consumption set to 0 (is there way to set to 'unset'?)
+    // precision set to default (2)
+    // all results out
+    // submit button enabled
+    // reset button display: none;
+    window.location.reload();
+    // temporary solution ^
+  });
 }
 
-// range-picker
-let slider = document.getElementById("travel-precision");
-let output = document.getElementById("travel-precision-output");
+(function () {
+  let slider = document.getElementById("travel-precision");
+  let output = document.getElementById("travel-precision-output");
 
-// default state
-output.innerHTML = `2 - medium precision`;
+  // default state
+  output.innerHTML = `2 - medium precision`;
 
-// Update the current slider value (each time you drag the slider handle)
-slider.oninput = function () {
-  let precision = "";
-  switch (true) {
-    case this.value == 1:
-      precision = `low precision`;
-      break;
-    case this.value == 2:
-      precision = `medium precision`;
-      break;
-    default:
-      precision = `high precision`;
-  }
-  output.innerHTML = `${this.value} - ${precision}`;
-};
+  slider.oninput = function () {
+    let precision = "";
+    switch (true) {
+      case this.value == 1:
+        precision = `low precision`;
+        break;
+      case this.value == 2:
+        precision = `medium precision`;
+        break;
+      default:
+        precision = `high precision`;
+    }
+    output.innerHTML = `${this.value} - ${precision}`;
+  };
+})();
 
 // add cost of whole trip - done
 // take care of front - make final look - done

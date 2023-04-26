@@ -16,6 +16,7 @@
   </head>
   <body>
     <div class="traveler-wrapper padding-x">
+      <div class="traveler-opacity"></div>
       <h1 class="centered">Travel Estimator</h1>
       <div class="row padding-x">
         <div class="col">
@@ -101,7 +102,10 @@
               </div>
               <div class="full-width flex-c">
                 <button class="padding-button" type="submit" id="travel-submit">
-                  <p id="form-submit">Submiting</p>
+                  <p id="form-submit">Submitting</p>
+                </button>
+                <button class="padding-button" id="reset">
+                  <p>RESET</p>
                 </button>
               </div>
             </form>
@@ -115,17 +119,17 @@
       >
         <h2>Results</h2>
         <div class="final-wrapper">
-          <div class="places-box">
-            <p id="trip-origin"></p>
-            <p id="trip-destination"></p>
-          </div>
+          <!-- <div class="places-box"> -->
+          <p id="travel-origin"></p>
+          <p id="travel-destination"></p>
+          <!-- </div> -->
           <div class="distance-box"></div>
-          <div class="sum-box">
-            <p id="whole-distance"></p>
-            <p id="average-fuel"></p>
-            <p id="fuel-used"></p>
-            <p id="trip-cost"></p>
-          </div>
+          <!-- <div class="sum-box"> -->
+          <p id="whole-distance"></p>
+          <p id="average-fuel"></p>
+          <p id="fuel-used"></p>
+          <p id="travel-cost"></p>
+          <!-- </div> -->
         </div>
       </div>
     </div>
