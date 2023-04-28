@@ -15,17 +15,34 @@
     <link rel="icon" type="image/x-icon" href="/assets/img/earth-icon.svg" />
   </head>
   <body>
-    <div class="traveler-wrapper padding-x">
+    <div class="traveler-wrapper padding-wrapper">
       <div class="traveler-opacity"></div>
-      <h1 class="centered">Travel Estimator</h1>
+      <h1 class="centered padding-top">Travel Estimator</h1>
       <div class="row padding-x">
         <div class="col">
           <div class="tabs">
             <div class="tab">
               <input type="checkbox" id="chck1" />
               <label class="tab-label" for="chck1">Information</label>
-              <div class="tab-content">
-                Basic information how to use this script.
+              <div class="tab-content" id="travel-information">
+                <p>
+                  <span>There are three tabs below</span> - origin and
+                  destination, Fuel consumption and Precision.
+                </p>
+                <p>
+                  <span>Origin and destination</span> - set these two points by
+                  cpcking on map. You can choose more than two points!
+                </p>
+                <p>
+                  <span>Fuel consumption</span> - insert value of fuel
+                  consumption of your vehicle (per 100 km). Maximum value of
+                  input is 100.
+                </p>
+                <p>
+                  <span>Precision</span> - choose one of possible values (1, 2
+                  or 3). The higher the value the better the precision. Higher
+                  precision may took longer to show results!
+                </p>
               </div>
             </div>
             <div class="tab">
@@ -35,7 +52,7 @@
               >
               <div class="tab-content">
                 <div id="map"></div>
-                <div class="traveler-coord full-width flex-col">
+                <div id="travel-coord" class="full-width flex-col">
                   <p id="coord1" class="centered"></p>
                   <p id="coord2" class="centered"></p>
                 </div>
@@ -44,9 +61,7 @@
             <form id="travel-form">
               <div class="tab">
                 <input type="checkbox" id="chck3" />
-                <label class="tab-label" for="chck3"
-                  >Fuel consumption [form]</label
-                >
+                <label class="tab-label" for="chck3">Fuel consumption</label>
                 <div class="tab-content centered">
                   <p>
                     Input type number when user insert fuel consumption of his
@@ -73,7 +88,7 @@
               <div class="tab">
                 <!-- required -->
                 <input type="checkbox" id="chck4" />
-                <label class="tab-label" for="chck4">Precision [form]</label>
+                <label class="tab-label" for="chck4">Precision</label>
                 <div class="tab-content centered">
                   <p>Range picker (3 options) for precision of result.</p>
                   <div class="slidecontainer centered">
@@ -102,7 +117,7 @@
               </div>
               <div class="full-width flex-c">
                 <button class="padding-button" type="submit" id="travel-submit">
-                  <p id="form-submit">Submitting</p>
+                  <p id="form-submit">SUBMIT</p>
                 </button>
                 <button class="padding-button" id="reset">
                   <p>RESET</p>
@@ -112,24 +127,16 @@
           </div>
         </div>
       </div>
-      <div
-        id="final-results"
-        class="centered"
-        style="display: flex; flex-direction: column"
-      >
-        <h2>Results</h2>
+      <div class="centered flex-c final-results">
+        <h2 class="padding-bottom">Results</h2>
         <div class="final-wrapper">
-          <!-- <div class="places-box"> -->
           <p id="travel-origin"></p>
           <p id="travel-destination"></p>
-          <!-- </div> -->
           <div class="distance-box"></div>
-          <!-- <div class="sum-box"> -->
           <p id="whole-distance"></p>
           <p id="average-fuel"></p>
           <p id="fuel-used"></p>
           <p id="travel-cost"></p>
-          <!-- </div> -->
         </div>
       </div>
     </div>

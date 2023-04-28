@@ -3,22 +3,26 @@
 // const API_KEY = "AIzaSyBkBUwIJoiUNQQX49OUvFzGzf-fQl-dpcc";
 
 // IMPORTANT global variables
-const avgFuel = document.querySelector("#average-fuel");
+const averageFuel = document.querySelector("#average-fuel");
 const buttons = document.querySelectorAll("button");
 const checkboxes = document.querySelectorAll("input[type=checkbox]");
 const checkboxesArray = [...checkboxes];
+const diesel = 1.34256756757; // 28.04.2023
 const distanceBox = document.querySelector(".distance-box");
-const finalResults = document.querySelector("#final-results");
 const finalWrapper = document.querySelector(".final-wrapper");
 const fuelUsed = document.querySelector("#fuel-used");
 const opacityAfterSubmit = document.querySelector(".traveler-opacity");
 const resetButton = document.querySelector("#reset");
 const travelConsumption = document.querySelector("#travel-consumption");
 const travelCost = document.querySelector("#travel-cost");
+const travelCoord = document.querySelector("#travel-coord");
 const travelDestination = document.querySelector("#travel-destination");
 const travelForm = document.querySelector("#travel-form");
 const travelOrigin = document.querySelector("#travel-origin");
 const travelPrecision = document.querySelector("#travel-precision");
+const travelPrecisionOutput = document.querySelector(
+  "#travel-precision-output"
+);
 const travelSubmit = document.querySelector("#travel-submit");
 const wholeDistance = document.querySelector("#whole-distance");
 
@@ -49,7 +53,6 @@ function initMap() {
 
   //IMPORTANT functions
 
-  // adding new marker
   function addMarker(position) {
     const marker = new google.maps.Marker({
       position,
@@ -60,22 +63,22 @@ function initMap() {
   }
 
   // Sets the map on all markers in the array.
-  function setMapOnAll(map) {
-    for (let i = 0; i < markers.length; i++) {
-      markers[i].setMap(map);
-    }
-  }
+  // function setMapOnAll(map) {
+  //   for (let i = 0; i < markers.length; i++) {
+  //     markers[i].setMap(map);
+  //   }
+  // }
 
-  // Removes the markers from the map, but keeps them in the array.
-  function hideMarkers() {
-    setMapOnAll(null);
-  }
+  // // Removes the markers from the map, but keeps them in the array.
+  // function hideMarkers() {
+  //   setMapOnAll(null);
+  // }
 
-  // Deletes all markers in the array by removing references to them.
-  function deleteMarkers() {
-    hideMarkers();
-    markers = [];
-  }
+  // // Deletes all markers in the array by removing references to them.
+  // function deleteMarkers() {
+  //   hideMarkers();
+  //   markers = [];
+  // }
 
   // directions api
   const directionsService = new google.maps.DirectionsService();
@@ -144,7 +147,6 @@ function initMap() {
 
     // adding distance property and its value to every country in object
     for (let key in countryObj) {
-      // how many copies of particular country occured
       let keyLength = newResults.filter((e) => e === key).length;
       const countryDescription = {
         distance: +Number.parseFloat(
@@ -164,11 +166,11 @@ function initMap() {
       );
     }
 
-    wholeDistance.innerHTML = `Whole distance is: <span>${numericDistance} km</span>`;
+    wholeDistance.innerHTML = `Whole distance is <span>${numericDistance} km</span>`;
     console.log(
       `[OUT] The distance between two markers is: ${numericDistance} km`
     );
-    avgFuel.innerHTML = `Average fuel consumption is <span>${fuelCons} l/100 km</span>`;
+    averageFuel.innerHTML = `Average fuel consumption is <span>${fuelCons} l/100 km</span>`;
     let wholeFuel = (numericDistance / 100) * fuelCons;
     fuelUsed.innerHTML = `Fuel used is <span>${Number.parseFloat(
       wholeFuel
@@ -191,7 +193,8 @@ function initMap() {
         })
         .then((data) => {
           const currency = data.rates[0].ask;
-          let wholeCost = (numericDistance / 100) * fuelCons * currency;
+          let wholeCost =
+            (numericDistance / 100) * fuelCons * diesel * currency;
 
           travelCost.innerHTML = `Cost of whole travel is <span>${Number.parseFloat(
             wholeCost
@@ -215,7 +218,6 @@ function initMap() {
     console.log(`[OUT] Execution time: ${(end - start) / 1000} s`);
   }
 
-  // markers on map
   map.addListener("click", (event) => {
     if (markers.length === 2) {
       window.alert(`You already set origin and destination points!`);
@@ -230,7 +232,7 @@ function initMap() {
     markersCoords.push(markerObject.lng);
 
     if (markers.length === 2) {
-      // origin / destination
+      travelCoord.style.display = "flex";
       firstCoord.innerHTML = `Origin coords - <span>${markersCoords[0]}, ${markersCoords[1]}</span>`;
       secondCoord.innerHTML = `Destination coords - <span>${markersCoords[2]}, ${markersCoords[3]}</span>`;
       const request = {
@@ -319,7 +321,6 @@ function initMap() {
 
       opacityAfterSubmit.classList.add("visible");
       opacityAfterSubmit.style.height = "100vh";
-      travelSubmit.disabled = `disabled`;
       resetButton.style.display = "block";
       const buttonsArray = [...buttons];
       buttonsArray.map((button) => (button.style.margin = "30px 10px 0"));
@@ -334,25 +335,34 @@ function initMap() {
   });
 
   resetButton.addEventListener("click", function () {
-    // origin and destination markers out
-    // fuel consumption set to 0 (is there way to set to 'unset'?)
-    // precision set to default (2)
-    // all results out
-    // submit button enabled
-    // reset button display: none;
+    const distanceBoxParagraphs = document.querySelectorAll(".distance-box p");
+    console.log(distanceBoxParagraphs);
+    const distanceBoxParagraphsArray = [...distanceBoxParagraphs];
+
+    // firstCoord.innerHTML = "";
+    // secondCoord.innerHTML = "";
+    // travelConsumption.value = "";
+    // travelPrecision.value = 2;
+    // travelPrecisionOutput.innerHTML = `2 - medium precision`;
+    // travelOrigin.innerHTML = "";
+    // travelDestination.innerHTML = "";
+    // distanceBoxParagraphsArray.map((par) => (par.innerHTML = ""));
+    // wholeDistance.innerHTML = "";
+    // averageFuel.innerHTML = "";
+    // fuelUsed.innerHTML = "";
+    // travelCost.innerHTML = "";
+    // finalWrapper.style.display = "none";
+    // resetButton.style.display = "none";
+    // IMPORTANT deleting markers and path between them
     window.location.reload();
-    // temporary solution ^
   });
 }
 
 (function () {
-  let slider = document.getElementById("travel-precision");
-  let output = document.getElementById("travel-precision-output");
-
   // default state
-  output.innerHTML = `2 - medium precision`;
+  travelPrecisionOutput.innerHTML = `2 - medium precision`;
 
-  slider.oninput = function () {
+  travelPrecision.oninput = function () {
     let precision = "";
     switch (true) {
       case this.value == 1:
@@ -364,17 +374,9 @@ function initMap() {
       default:
         precision = `high precision`;
     }
-    output.innerHTML = `${this.value} - ${precision}`;
+    travelPrecisionOutput.innerHTML = `${this.value} - ${precision}`;
   };
 })();
 
-// add cost of whole trip - done
-// take care of front - make final look - done
-
-// add information
-// add fade-in effect in each line of result
-// add rotating Earth while loading content + white opacity
-// add RESET on submit button while submitted
-// add euro value from currency api
+// add RESET on submit button while submitted (markers and path between)
 // optimalize js
-// optimalize scss
